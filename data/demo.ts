@@ -1,6 +1,9 @@
 import type {Fact} from '../lib/resume/engine';
 /** Entirely fictional demonstration data. Never contains an actual user's career details. */
 export const syntheticFacts:Fact[]=[
+{id:'71000000-0000-4000-8000-000000000101',statement:'Alex Morgan',fact_type:'identity',verification_status:'user_confirmed'},
+{id:'71000000-0000-4000-8000-000000000102',statement:'alex.morgan@example.com',fact_type:'contact',verification_status:'user_confirmed'},
+{id:'71000000-0000-4000-8000-000000000103',statement:'Westhaven (fictional)',fact_type:'contact',verification_status:'user_confirmed'},
 {id:'71000000-0000-4000-8000-000000000001',statement:'Alex Morgan coordinated infrastructure procurement and contractor schedules for Northbridge Works, delivering a EUR 4.2 million programme.',fact_type:'experience',verification_status:'user_confirmed'},
 {id:'71000000-0000-4000-8000-000000000002',statement:'Led project governance and stakeholder reporting for an international infrastructure team of 12 contributors.',fact_type:'achievement',verification_status:'user_confirmed'},
 {id:'71000000-0000-4000-8000-000000000003',statement:'Implemented digital automation and analytics at Aster Process Labs, reducing monthly reporting preparation by 35%.',fact_type:'achievement',verification_status:'user_confirmed'},

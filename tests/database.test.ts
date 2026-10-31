@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PGlite } from '@electric-sql/pglite';
-import { readFile } from 'node:fs/promises';
+import { readFile,readdir } from 'node:fs/promises';
+import interviewBank from '../data/interview-40.json';
 
 // Real embedded PostgreSQL executes the production SQL. Only Supabase-owned
 // auth/storage schemas are mocked, and pgcrypto's extension declaration removed
@@ -31,24 +32,74 @@ beforeAll(async () => {
     grant execute on function auth.uid() to anon,authenticated;
     grant select,insert,update,delete on storage.objects to authenticated;
   `);
-  const migration = await readFile('supabase/migrations/202610310001_core.sql','utf8');
-  await db.exec(migration.replace('create extension if not exists pgcrypto;',''));
+  const migrations=(await readdir('supabase/migrations')).filter(f=>f.endsWith('.sql')).sort();
+  for(const file of migrations){
+    const migration=await readFile(`supabase/migrations/${file}`,'utf8');
+    await db.exec(migration.replace('create extension if not exists pgcrypto;',''));
+    if(file==='202610310001_core.sql'){
+      // Upgrade fixture: all 99 old question IDs, an answer, linked fact and CVs.
+      await db.exec(`insert into auth.users(id) values ('${alice}'),('${bob}');
+        insert into interview_questions(id,section,pl,en,why,extraction_instructions)
+        select 'Q'||lpad(n::text,3,'0'),chr(65+(n-1)/9),'Legacy '||n,'Legacy '||n,'Legacy purpose','Legacy extraction' from generate_series(1,99) n;
+        insert into interview_answers(user_id,question_id,answer,status) values('${alice}','Q099','Legacy answer must survive','answered');
+        insert into career_facts(user_id,fact_type,statement,source_type,source_reference) values('${alice}','experience','Legacy fact must survive','interview','Q099');
+        insert into cv_versions(user_id,title,template,content) values
+          ('${bob}','Legacy executive','professional','{"template":"professional","sections":[{"id":"kept","hidden":true,"claims":[{"text":"Preserved claim"}]}]}'),
+          ('${bob}','Legacy technical','technical','{"template":"technical","sections":[{"id":"original-order"}]}');`);
+    }
+  }
   const seed = await readFile('supabase/seed.sql','utf8');
   await db.exec(seed);
   await db.exec(seed);
-  await db.exec(`insert into auth.users(id) values ('${alice}'),('${bob}');`);
 }, 60000);
 
 afterAll(async () => { if (db) await db.close(); });
 
 describe('production PostgreSQL migrations and tenant policies (embedded)', () => {
-  it('applies migration and idempotent seed with exactly 99 questions', async () => {
+  it('upgrades safely and seeds exactly the authoritative 40 active questions', async () => {
     await asAdmin();
-    const r = await db.query<{count:number}>(`select count(*)::int as count from interview_questions`);
-    expect(r.rows[0].count).toBe(99);
-    const sections = await db.query<{count:number}>(`select count(*)::int as count from interview_questions group by section`);
-    expect(sections.rows).toHaveLength(11);
-    expect(sections.rows.every(s=>s.count===9)).toBe(true);
+    const r = await db.query<{count:number}>(`select count(*)::int as count from interview_questions where active`);
+    expect(r.rows[0].count).toBe(40);
+    const sections = await db.query<{count:number}>(`select count(*)::int as count from interview_questions where active group by section`);
+    expect(sections.rows).toHaveLength(10);
+    expect(sections.rows.every(s=>s.count===4)).toBe(true);
+    const metadata=await db.query<{metadata:unknown}>(`select metadata from interview_questions where active order by id`);
+    expect(metadata.rows.map(r=>r.metadata)).toEqual(interviewBank.questions);
+    const legacy=await db.query<{count:number}>(`select count(*)::int as count from interview_questions where not active`);
+    expect(legacy.rows[0].count).toBe(99);
+    const answer=await db.query<{answer:string;value_json:string}>(`select answer,value_json from interview_answers where question_id='Q099'`);
+    expect(answer.rows[0]).toMatchObject({answer:'Legacy answer must survive',value_json:'Legacy answer must survive'});
+    const facts=await db.query(`select * from career_facts where statement='Legacy fact must survive'`);
+    expect(facts.rows).toHaveLength(1);
+  });
+  it('maps old templates without changing content, order or visibility',async()=>{
+    await asAdmin();
+    const rows=await db.query<{title:string;template:string;content:{template:string;sections:unknown[]}}>(`select title,template,content from cv_versions where title like 'Legacy%' order by title`);
+    expect(rows.rows[0]).toMatchObject({title:'Legacy executive',template:'executive_clarity',content:{template:'executive_clarity',sections:[{id:'kept',hidden:true,claims:[{text:'Preserved claim'}]}]}});
+    expect(rows.rows[1]).toMatchObject({title:'Legacy technical',template:'modern_studio',content:{template:'modern_studio',sections:[{id:'original-order'}]}});
+    await expect(db.exec(`insert into cv_versions(user_id,title,template) values('${alice}','Old template','technical')`)).rejects.toThrow(/check constraint/i);
+  });
+  it('persists draft, choice and range answers while rejecting invalid shapes and stale saves',async()=>{
+    await asUser(alice);
+    await db.exec(`insert into interview_answers(user_id,question_id,answer_type,status,answer,value_json,last_edited_at) values
+      ('${alice}','MCV-Q001','long_text','draft','','""','2026-10-31T10:00:00Z'),
+      ('${alice}','MCV-Q022','yes_no_with_details','answered','Nie','{"choice":"no","details":null}','2026-10-31T10:00:00Z'),
+      ('${alice}','MCV-Q035','range_with_context','answered','PLN 10000–15000','{"min":10000,"max":15000,"currency":"PLN","period":"month","contract_basis":"UoP_brutto","negotiability":null}','2026-10-31T10:00:00Z');`);
+    await expect(db.exec(`update interview_answers set value_json='{"choice":"invalid"}' where user_id='${alice}' and question_id='MCV-Q022'`)).rejects.toThrow(/Invalid answer choice/i);
+    await expect(db.exec(`update interview_answers set value_json='{"min":20000,"max":15000}' where user_id='${alice}' and question_id='MCV-Q035'`)).rejects.toThrow(/Invalid compensation range/i);
+    await expect(db.exec(`update interview_answers set last_edited_at='2026-10-31T09:59:00Z' where user_id='${alice}' and question_id='MCV-Q001'`)).rejects.toThrow(/newer answer/i);
+    await expect(db.exec(`update interview_answers set answer_type='long_text' where user_id='${alice}' and question_id='MCV-Q035'`)).rejects.toThrow(/type differs/i);
+    await expect(db.exec(`update interview_answers set followup_answers='[{"question":"1","answer":"1"},{"question":"2","answer":"2"},{"question":"3","answer":"3"}]' where user_id='${alice}' and question_id='MCV-Q001'`)).rejects.toThrow(/check constraint/i);
+    await asUser(bob);
+    const rows=await db.query(`select * from interview_answers where question_id like 'MCV-%'`);
+    expect(rows.rows).toHaveLength(0);
+  });
+  it('keeps private-only interview facts forbidden even after confirmation or attempted flag clearing',async()=>{
+    await asUser(alice);
+    const facts=await db.query<{id:string;private:boolean;forbidden_for_cv:boolean;confidential:boolean;excluded:boolean}>(`insert into career_facts(user_id,fact_type,statement,source_type,source_reference,verification_status,confirmed_at) values('${alice}','other','Synthetic compensation expectation','interview','MCV-Q035','user_confirmed',now()) returning id,private,forbidden_for_cv,confidential,excluded`);
+    expect(facts.rows[0]).toMatchObject({private:true,forbidden_for_cv:true,confidential:true,excluded:true});
+    const updated=await db.query<{private:boolean;forbidden_for_cv:boolean}>(`update career_facts set private=false,forbidden_for_cv=false,excluded=false,confidential=false where id='${facts.rows[0].id}' returning private,forbidden_for_cv`);
+    expect(updated.rows[0]).toEqual({private:true,forbidden_for_cv:true});
   });
   it('auth trigger initializes profiles and every user table has forced RLS', async () => {
     await asAdmin();

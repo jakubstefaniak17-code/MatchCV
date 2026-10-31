@@ -1,12 +1,27 @@
-# MatchCV — MVP 0.3
+# MatchCV — Product Kit MVP v0.3
 
-**Open the interactive review:** https://matchcv-mvp-review.jakub-stefaniak17.chatgpt.site (owner-private, Continue with ChatGPT if requested). Or run locally and open `/demo`; no Supabase is needed for the clearly labeled browser-local synthetic demonstration. See [review preview](docs/review-preview.md).
+A Next.js career evidence workspace implementing the supplied **Product Kit v1**: an optional40-question career interview, a reusable fact registry, job analysis and evidence-grounded PDF/DOCX generation. The design follows **Calm Confidence**, with **Executive Clarity** and **Modern Studio** documents.
 
-A Next.js career evidence workspace: tell your career story once, review its facts, and build role-specific CVs. Polish-first interface, bilingual 99-question interview, Polish/English document headings. Uses Supabase PostgreSQL/Auth/Storage and an optional OpenAI-compatible provider. Deploy to Vercel; no personal computer or local LLM is required.
+**Interactive synthetic review:** https://matchcv-mvp-review.jakub-stefaniak17.chatgpt.site
 
-## Local setup
+The review is private to the owner (Continue with ChatGPT if requested). It uses the same product components and deterministic engine with browser-local data. Import, real account management and AI require configured production services; the demonstration labels these boundaries explicitly. Do not enter real confidential information into the review.
 
-Requires Node.js 22.16+ and npm. Never place real CVs in repository fixtures.
+## Source of truth
+
+| Area | Implementation |
+| --- | --- |
+| Exact40 questions, IDs and metadata | `data/interview-40.json` (unmodified supplied JSON) |
+| Source contracts and runtime schemas | `lib/interview/types.ts`, `lib/interview/schema.ts` |
+| One-question interview/autosave | `components/interview/interview.tsx` |
+| Design tokens and components | `styles/tokens.css`, `app/globals.css`, `components/shell.tsx` |
+| Two template definitions and document rendering | `lib/resume/engine.ts`, `lib/documents/render.ts` |
+| Provenance, user review, privacy | `lib/career/provenance.ts`, `app/api/interview/`, `app/api/workspace/` |
+| Authoritative supplied written specs | `docs/product-kit/` |
+| Conflicts and deliberate decisions | `docs/product-kit-decisions.md` |
+
+## Setup
+
+Node22.16+ and npm. Do not commit credentials or real CV fixtures.
 
 ```bash
 npm ci
@@ -14,43 +29,43 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Create a Supabase project, then either link the Supabase CLI and run `supabase db push`, or execute `supabase/migrations/202610310001_core.sql` followed by `supabase/seed.sql` in the project's SQL editor. The migration creates the private `career-documents` bucket and auth profile triggers. Seed is idempotent and contains exactly 99 bilingual question definitions. Regenerate it with `npm run seed:questions`.
+Open `/demo` for the clearly labeled synthetic review without Supabase. Real protected routes remain authenticated. There is no production authentication bypass.
 
-Enable Email provider in Supabase Auth. Configure Site URL and Redirect URLs for `http://localhost:3000/auth/callback` and your production `/auth/callback`. Email confirmation is controlled by Supabase. Use production SMTP before inviting real users. Registration intentionally gives generic responses; reset responses do not disclose whether an email exists.
+For a new Supabase project, apply these files in order through its SQL editor or link Supabase CLI and run `supabase db push`:
 
-Existing accounts created before the migration need rows inserted into `profiles` (`id=user_id`) and `career_profiles` (`user_id`); new accounts are initialized by the auth trigger.
+1. `supabase/migrations/202610310001_core.sql`
+2. `supabase/migrations/202610310002_product_kit.sql`
+3. `supabase/seed.sql`
+
+For an existing installation, apply only the new migration and current seed. It archives99 old questions, preserves their answers/facts and CV contents, activates the new40 bank and adds typed answers/stale-write guards. Seed is idempotent; regenerate with `npm run seed:questions`.
+
+Enable Email auth. Set Site URL and allowed callback to `http://localhost:3000/auth/callback` and production equivalent. Configure SMTP/verification policy before real invitations. Private `career-documents` Storage policies are included in the migration. See docs/database.md.
 
 ## Environment
 
 | Variable | Purpose |
 | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anon/publishable key, constrained by RLS |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Server only**, account deletion administrative call; never prefix with NEXT_PUBLIC |
-| `APP_URL` | Exact origin, e.g. `https://matchcv.example.com`; origin checks and auth redirects |
-| `AI_API_KEY` | Optional server-only compatible provider credential |
-| `AI_BASE_URL` | HTTPS OpenAI-compatible `/v1` base, default OpenAI |
-| `AI_MODEL` | Explicit model accepted by your provider; configure before enabling AI |
-| `AI_INPUT_USD_PER_MILLION` | Operator-maintained input price; omit to record unknown cost |
-| `AI_OUTPUT_USD_PER_MILLION` | Operator-maintained output price; omit to record unknown cost |
-| `JOB_FETCH_ALLOWED_HOSTS` | Exact comma-separated public hosts approved for fetching; empty disables URL retrieval |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public client key constrained by RLS |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server only, administrative account deletion |
+| `APP_URL` | Exact application origin for auth callbacks and mutation origin checks |
+| `AI_API_KEY` | Optional server-side compatible provider key |
+| `AI_BASE_URL` | HTTPS compatible `/v1` URL, default OpenAI |
+| `AI_MODEL` | Model supporting JSON mode |
+| `AI_INPUT_USD_PER_MILLION`, `AI_OUTPUT_USD_PER_MILLION` | Operator-maintained usage pricing; unset = unknown cost |
+| `JOB_FETCH_ALLOWED_HOSTS` | Exact approved public HTTPS hosts; empty means pasted text only |
 
-Without Supabase, public pages work and protected pages show a setup screen. There is no in-memory auth bypass or fake dashboard. Without AI, saved interview answers, manual career editing, conservative job text parsing, evidence retrieval and exact-fact CV composition remain available. Document import falls back to lines for manual review.
+No paid service is activated by this code. API use can incur configured-provider charges. Missing AI uses conservative extraction/text-analysis/composition fallbacks and preserves saved data.
 
-## Working flow
+## Main workflow
 
-1. Register and verify email if enabled; sign in.
-2. Import PDF/DOCX (5 MB max, text-based PDF; OCR is not included) or add career entities/facts manually.
-3. Review each candidate, classify it, edit, confirm or reject. Only explicitly confirmed or document-supported facts are eligible. Imported facts are **not verified**.
-4. Answer any useful subset of the interview. Save incrementally, skip without implying a negative answer, resume or edit later. Extract answer candidates and confirm them in Profile.
-5. Paste an advertisement. URL retrieval is opt-in per host, HTTPS-only, DNS-pinned, public-IP-only, with robots checks, no redirects or access-control bypass. Paste text when unavailable.
-6. Review mandatory/preferred/responsibility requirements and suggested evidence. Automatic lexical overlap is **partial**, never proof of qualification.
-7. Choose language/template and generate. Confirmed evidence is ranked and selected for the target role. All factual claims carry canonical fact IDs.
-8. Edit the draft, reorder/hide sections, approve and save. Export PDF/DOCX. Editing factual wording requires first saving and confirming that wording in the career registry; this conservative MVP does not use AI to certify its own paraphrases.
+Register → import text-based PDF/DOCX (5MB) → review facts and coverage → answer any subset of40 questions with autosave → paste job ad → review requirements and evidence → choose Executive Clarity/Modern Studio → generate → edit/reorder/hide sections → approve → download real PDF/DOCX.
 
-The same synthetic profile includes infrastructure, energy and transformation evidence plus three job advertisements. Import demo only into an empty fact registry; explicitly confirm its fictional facts before generating demonstration documents. Never mix the demo with a real professional profile.
+Private compensation, career-boundary answers and forbidden information never enter generation. A skipped answer is unknown, not lack of competence. Extracted candidates need user confirmation plus separate permission for inclusion. Missing job evidence is not a negative competency judgment.
 
-## Checks
+The current engine retains exact approved factual wording; new phrasing/translation can be saved and confirmed as another source fact, then selected in the editor. This deliberate limit is documented rather than presenting unverified rewriting as complete.
+
+## Validation and deployment
 
 ```bash
 npm run typecheck
@@ -60,10 +75,8 @@ npm run build
 npm run test:e2e
 ```
 
-See [docs/validation.md](docs/validation.md) for executed results and environment limits. Tests are not substitutes for a real Supabase staging smoke test. In particular, email delivery, provider billing, production Storage policies and Vercel runtime must be checked against configured services.
+See `docs/product-kit-validation.md` for actual evidence and limits. The optional real staging browser test needs E2E_EMAIL/E2E_PASSWORD for an isolated synthetic account. Local Playwright also needs its official Chromium installation; CI installs it.
 
-## Deployment
+Deploy to Vercel using Next.js preset, Node22.x, `npm ci`, `npm run build`, default output. Add environment values, apply migrations and configure auth callbacks, then verify the complete staged signup/import/generation/export/deletion flow. For a custom domain, add it in Vercel Domains, apply the provider-returned DNS records, then update APP_URL and Supabase redirects. See docs/deployment.md and docs/security.md.
 
-See [docs/deployment.md](docs/deployment.md), [docs/security.md](docs/security.md), [docs/database.md](docs/database.md) and [docs/architecture.md](docs/architecture.md).
-
-No deployment is implied by this repository. Privacy and terms pages are drafts for legal review. Security controls do not themselves establish GDPR compliance.
+The owner declined Supabase/Vercel connections in this task. Their integration code and setup are provided, but no external signup, SMTP, provider or Vercel deployment success is claimed. Privacy/terms remain legal-review drafts, not a GDPR compliance assertion.

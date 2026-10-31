@@ -81,11 +81,11 @@ describe('workspace server route integration with unavailable AI and an owner-sc
  it('generates an evidence-grounded fallback CV, excluding another owner and unconfirmed facts',async()=>{
   state.tables.career_facts=[{...confirmed},{...confirmed,id:crypto.randomUUID(),user_id:bob,statement:'Other account secret'}, {...confirmed,id:crypto.randomUUID(),verification_status:'imported_unconfirmed',statement:'Unconfirmed skill'}];
   state.tables.job_offers=[{id:jobId,user_id:state.userId,analysis:analyzeJob(ad,'en')}];
-  const response=await POST(request({action:'generate',jobId,language:'en',template:'technical'}));
+  const response=await POST(request({action:'generate',jobId,language:'en',template:'modern_studio'}));
   expect(response.status).toBe(200);
   expect((await response.json()).warning).toMatch(/fact-preserving/);
   const cv=state.tables.cv_versions[0];
-  expect(cv).toMatchObject({user_id:state.userId,approved:false,template:'technical'});
+  expect(cv).toMatchObject({user_id:state.userId,approved:false,template:'modern_studio'});
   const serialized=JSON.stringify(cv.content);
   expect(serialized).toContain(confirmed.statement);
   expect(serialized).not.toContain('Other account secret');
@@ -95,26 +95,26 @@ describe('workspace server route integration with unavailable AI and an owner-sc
  });
  it('returns 404 for another owner’s job and never creates a CV',async()=>{
   state.tables.job_offers=[{id:jobId,user_id:bob,analysis:analyzeJob(ad,'en')}];
-  const response=await POST(request({action:'generate',jobId,language:'en',template:'professional'}));
+  const response=await POST(request({action:'generate',jobId,language:'en',template:'executive_clarity'}));
   expect(response.status).toBe(404);
   expect(state.tables.cv_versions).toBeUndefined();
  });
  it('refuses generation without confirmed public evidence',async()=>{
   state.tables.job_offers=[{id:jobId,user_id:state.userId,analysis:analyzeJob(ad,'en')}];
   state.tables.career_facts=[{...confirmed,confidential:true}];
-  const response=await POST(request({action:'generate',jobId,language:'pl',template:'professional'}));
+  const response=await POST(request({action:'generate',jobId,language:'pl',template:'executive_clarity'}));
   expect(response.status).toBe(400);
   expect(state.tables.cv_versions).toBeUndefined();
  });
  it('GET computes imported-question coverage and evidence only from owned records',async()=>{
   state.tables.career_profiles=[{id:crypto.randomUUID(),user_id:state.userId}];
-  state.tables.career_facts=[{...confirmed,source_type:'import',structured_value:{related_question_ids:['Q001','Q010']}},{...confirmed,id:crypto.randomUUID(),source_type:'import',excluded:true,structured_value:{related_question_ids:['Q099']}},{...confirmed,id:crypto.randomUUID(),user_id:bob,statement:'Private other account'}];
+  state.tables.career_facts=[{...confirmed,source_type:'import',structured_value:{question_coverage:[{question_id:'MCV-Q001',coverage:'full'},{question_id:'MCV-Q010',coverage:'partial'}],coverage_confirmed:true}},{...confirmed,id:crypto.randomUUID(),source_type:'import',excluded:true,structured_value:{question_coverage:[{question_id:'MCV-Q040',coverage:'full'}],coverage_confirmed:true}},{...confirmed,id:crypto.randomUUID(),user_id:bob,statement:'Private other account'}];
   state.tables.job_offers=[{id:jobId,user_id:state.userId,analysis:analyzeJob(ad,'en')}];
   const response=await GET();
   expect(response.status).toBe(200);
   expect(response.headers.get('cache-control')).toBe('no-store');
   const body=await response.json();
-  expect(body.profile.covered_question_ids).toEqual(['Q001','Q010']);
+  expect(body.profile.covered_question_ids).toEqual(['MCV-Q001']);
   expect(body.facts).toHaveLength(2);
   expect(body.jobs[0].evidence.length).toBeGreaterThan(0);
   expect(state.queries.every(q=>q.filters.some(([key,value])=>key==='user_id'&&value===state.userId))).toBe(true);

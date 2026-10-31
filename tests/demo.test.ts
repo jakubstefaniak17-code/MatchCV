@@ -6,7 +6,7 @@ const post=(body:unknown)=>workspaceFetch('/api/workspace',{method:'POST',body:J
 describe('browser-local review demo',()=>{
  it('provides three materially different drafts and persists interview edits',async()=>{
  const initial=await (await workspaceFetch('/api/workspace')).json();expect(initial.cvs).toHaveLength(3);expect(new Set(initial.cvs.map((cv:{content:{summary:string}})=>cv.content.summary)).size).toBe(3);
- await post({action:'answer',questionId:'Q001',answer:'Synthetic test career story',status:'answered'});
+ await workspaceFetch('/api/interview',{method:'POST',body:JSON.stringify({questionId:'MCV-Q001',answer:{answer_type:'long_text',status:'answered',value:'Synthetic test career story',followup_answers:[],fact_ids:[],last_edited_at:new Date().toISOString()}})});
  const reloaded=await (await workspaceFetch('/api/workspace')).json();expect(reloaded.answers[0].answer).toBe('Synthetic test career story');expect(reloaded.aiConfigured).toBe(false);
  });
  it('keeps approval and confidential-evidence validation in the review path',async()=>{
