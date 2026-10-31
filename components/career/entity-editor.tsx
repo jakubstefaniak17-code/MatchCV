@@ -1,4 +1,5 @@
 "use client";
+import {workspaceFetch} from "@/lib/demo/transport";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 type Entity = "work_experiences" | "projects" | "achievements" | "skills" | "education" | "certifications" | "languages";
@@ -27,7 +28,7 @@ const definitions: Record<Entity, {
 export function EntityEditor({ onSaved }: {
     onSaved?: () => Promise<void>;
 }) { const [entity, setEntity] = useState<Entity>("work_experiences"); const [records, setRecords] = useState<Partial<Record<Entity, EntityRow[]>>>({}); const [editing, setEditing] = useState<EntityRow | null>(null); const [error, setError] = useState(""); const [message, setMessage] = useState(""); const [busy, setBusy] = useState(false); async function load() { try {
-    const response = await fetch("/api/career");
+    const response = await workspaceFetch("/api/career");
     const data = await response.json();
     if (!response.ok)
         throw new Error(data.error || "Nie udało się pobrać profilu.");
@@ -42,7 +43,7 @@ catch (e) {
     else if (editing)
         data[field.key] = null;
 } setBusy(true); setError(""); try {
-    const response = await fetch("/api/career", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ entity, id: editing?.id, data }) });
+    const response = await workspaceFetch("/api/career", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ entity, id: editing?.id, data }) });
     const result = await response.json();
     if (!response.ok)
         throw new Error(result.error || "Nie udało się zapisać rekordu.");
@@ -58,7 +59,7 @@ catch (e) {
 finally {
     setBusy(false);
 } } async function remove(id: string) { setBusy(true); setError(""); try {
-    const response = await fetch("/api/career", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ entity, id }) });
+    const response = await workspaceFetch("/api/career", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ entity, id }) });
     const result = await response.json();
     if (!response.ok)
         throw new Error(result.error || "Nie udało się usunąć rekordu.");

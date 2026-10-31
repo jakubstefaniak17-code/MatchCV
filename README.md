@@ -1,5 +1,7 @@
 # MatchCV — MVP 0.3
 
+**Open the interactive review:** https://matchcv-mvp-review.jakub-stefaniak17.chatgpt.site (owner-private, Continue with ChatGPT if requested). Or run locally and open `/demo`; no Supabase is needed for the clearly labeled browser-local synthetic demonstration. See [review preview](docs/review-preview.md).
+
 A Next.js career evidence workspace: tell your career story once, review its facts, and build role-specific CVs. Polish-first interface, bilingual 99-question interview, Polish/English document headings. Uses Supabase PostgreSQL/Auth/Storage and an optional OpenAI-compatible provider. Deploy to Vercel; no personal computer or local LLM is required.
 
 ## Local setup
