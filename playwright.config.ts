@@ -1,0 +1,2 @@
+import {defineConfig,devices} from '@playwright/test';
+export default defineConfig({testDir:'./tests/e2e',webServer:process.env.CI?{command:'npm run start -- --port 4173',url:'http://localhost:4173',timeout:60000}:undefined,fullyParallel:false,use:{baseURL:process.env.E2E_BASE_URL||'http://localhost:4173',trace:'retain-on-failure'},projects:[{name:'desktop',use:{...devices['Desktop Chrome']}},{name:'mobile',use:{...devices['iPhone 13'],defaultBrowserType:'chromium'}}]});
