@@ -10,7 +10,7 @@
 
 ## Execution evidence
 
-Baseline75tests passed before changes. Current run158tests passed across16suites; TypeScript strict, ESLint and production Next.js build passed. Turbopack incremental persistence repeatedly failed in this executor (including a Rust cache panic). Production build now explicitly uses the supported Next.js webpack builder to avoid this cache-specific failure; routes/framework are unchanged. These are local code checks, not external auth/provider success.
+Baseline75tests passed before changes. Current run161tests passed across16suites; TypeScript strict, ESLint and production Next.js build passed. Turbopack incremental persistence repeatedly failed in this executor (including a Rust cache panic). Production build now explicitly uses the supported Next.js webpack builder to avoid this cache-specific failure; routes/framework are unchanged. These are local code checks, not external auth/provider success.
 
 Document QA:12PDF+12DOCX, six synthetic careers×two templates, all24rendered with Poppler/LibreOffice.36pages visually/structurally checked;9pt minimum, selectable Unicode, no clipping. See docs/document-qa-v04.md and scripts/qa-documents.ts.
 
@@ -22,12 +22,12 @@ Local Playwright browser installation failed: official Chromium download returne
 |---|---|---|
 | Registration/login/recovery | Existing auth UI/API and public browser smoke | Not verified without SMTP/Supabase |
 | First-login/direct URL guard | Server layout tests, fresh-account PG trigger | Conditional Playwright setup-staging |
-| Five steps and CAS |9actualPGtests,11API/readiness tests,5setupUI tests | Not verified across real devices |
+| Five steps and CAS |9actualPGtests,11API/readiness tests,8setupUI tests | Not verified across real devices |
 | PDF/DOCX import | Document parser/format tests, review UI tests | Private Storage/provider not verified |
 | Truth/publication/private exclusions | API, PG, UI and engine privacy tests | Two live accounts not supplied |
 | Selected questions/resume | Original interview persistence tests +fixed selection PG/API | Real logout/login not verified |
 | CV quality/chronology/style edits | Engine2qualitysuite and source-bound review tests | Live model wording/latency not measured |
-| Export/layout |21documenttests plus24actualrenderedfixtures | Browser download needs CI/staging |
+| Export/layout |21documenttests plus24actualrenderedfixtures | Synthetic browser download passed CI; real Storage needs staging |
 | Mobile | Responsive components and tab tests, Playwright mobile source | Local Chromium unavailable |
 
 ## Deliberate remaining limitations
@@ -37,3 +37,5 @@ This is a tested implementation increment, not a claim that the full production 
 Semantic matching uses a transparent bilingual domain vocabulary and cautious partial evidence, not a universally calibrated semantic model. Missing information never means absence of competence. Uncertain paraphrases require user editorial review; deterministic checks do not prove the truth of arbitrary prose. New numbers, responsibility inflation, credentials and unsupported categories remain blocked. Language detection is conservative, not a complete linguistic/style audit; real provider output still needs human acceptance. Basic drafts intentionally retain source language.
 
 Import parsing depends on readable text; scans require OCR. Proposed structured data needs review, especially dates. Year-only periods are preserved in provenance, never converted to invented January dates. Some industry-specific mappings, language edge cases and multi-entity relationships will need real-world iteration. No autonomous applications, recruiter messages, billing or paid infrastructure were added.
+
+GitHub Validate run41303962637 on commitc6aaabd completed successfully, including desktop/mobile synthetic browser tests (six executed cases). Four real-staging cases remained skipped. The subsequent supplementary-setup regression is additionally tested locally and rechecked by the final branch workflow.

@@ -2,6 +2,8 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {SetupProvider,useSetup} from '@/components/onboarding/provider';
+import {SourceDetails} from '@/components/career/source-details';
+import {WelcomeView,SetupStep} from '@/components/onboarding/setup';
 import {IdentityStep} from '@/components/onboarding/identity';
 import {GroupedFactReview,type SetupFact} from '@/components/onboarding/review';
 import {validateSetupFile} from '@/components/onboarding/import';
@@ -59,4 +61,25 @@ describe('Grouped review separates truth and publication',()=>{
   expect(validateSetupFile({name:'sample.docx',type:'application/pdf',size:200})).not.toBeNull();
   expect(validateSetupFile({name:'sample.pdf',type:'application/pdf',size:6*1024*1024})).not.toBeNull();
  });
+});
+
+
+describe('optional setup for migrated accounts',()=>{
+ it('offers supplementary setup without making an existing account new',async()=>{
+  const saved={...initial,progress:{...initial.progress,status:'completed' as const,current_step:5,legacy_supplement:true}};
+  request.mockResolvedValue(Response.json(saved));render(<SetupProvider><WelcomeView/></SetupProvider>);
+  await screen.findByRole('button',{name:/Mam już CV/});expect(screen.getByText(/dobrowolne uzupełnienie istniejącego profilu/)).toBeTruthy();
+ });
+ it('allows a migrated account to open optional identity editing without resetting completion',async()=>{
+  const saved={...initial,progress:{...initial.progress,status:'completed' as const,current_step:5,legacy_supplement:true}};
+  request.mockImplementation(async()=>Response.json(saved));render(<SetupProvider><SetupStep step={1}/></SetupProvider>);
+  await screen.findByRole('textbox',{name:'Imię'});expect(request.mock.calls.some(([,options])=>options?.method==='POST')).toBe(false);
+ });
+});
+
+
+it('exposes less common proposed fields before confirming an entire imported record',()=>{
+ render(<SourceDetails structured={{proposed_entity:{entity:'projects',data:{title:'Fictional project',technologies:['SynthetixTool'],stakeholders:['Synthetic client'],confidential:true}}}}/>);
+ fireEvent.click(screen.getByText('Sprawdź wszystkie rozpoznane szczegóły przed potwierdzeniem'));
+ expect(screen.getByText('SynthetixTool')).toBeTruthy();expect(screen.getByText('Synthetic client')).toBeTruthy();expect(screen.getByText('Poufne')).toBeTruthy();
 });
