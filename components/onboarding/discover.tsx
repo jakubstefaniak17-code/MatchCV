@@ -1,0 +1,25 @@
+'use client';
+import {useCallback,useEffect,useRef,useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {ArrowRight} from 'lucide-react';
+import {InterviewQuestionEditor} from '@/components/interview/interview';
+import {interviewQuestions} from '@/data/interview-questions';
+import {emptyAnswer} from '@/lib/interview/schema';
+import type {SavedInterviewAnswer} from '@/lib/interview/engine';
+import type {InterviewAnswer} from '@/lib/interview/types';
+import {setupRequest,useSetup} from './provider';
+interface InterviewData {userId:string;answers:SavedInterviewAnswer[];coveredQuestionIds:string[];questionContexts?:Record<string,string[]>}
+export function DiscoverStep(){
+ const setup=useSetup(),router=useRouter();const [data,setData]=useState<InterviewData|null>(null),[selected,setSelected]=useState<string|null>(null),[error,setError]=useState(''),[extracting,setExtracting]=useState(0),[message,setMessage]=useState('');const extracted=useRef(new Set<string>());
+ useEffect(()=>{let cancelled=false;void setupRequest('/api/interview').then(result=>{if(!cancelled)setData(result as InterviewData);}).catch(e=>{if(!cancelled)setError(e instanceof Error?e.message:'Nie udało się wczytać rozmowy.');});return()=>{cancelled=true;};},[]);
+ const onSaved=useCallback((id:string,answer:InterviewAnswer)=>{
+  setData(current=>current?{...current,answers:[...current.answers.filter(a=>a.question_id!==id),{question_id:id,...answer}]}:current);
+  const key=`${id}:${answer.last_edited_at}`;if(answer.status!=='answered'||extracted.current.has(key))return;extracted.current.add(key);setExtracting(v=>v+1);
+  void setupRequest('/api/interview/extract',{questionId:id}).then(result=>{const value=result as {count:number;warning?:string};setMessage(`Dodano ${value.count} propozycji do późniejszego sprawdzenia. ${value.warning||''}`);}).catch(e=>{extracted.current.delete(key);setError(`Odpowiedź jest bezpiecznie zapisana. Nie udało się wydobyć z niej informacji: ${e instanceof Error?e.message:'spróbuj ponownie później.'}`);}).finally(()=>setExtracting(v=>v-1));
+ },[]);
+ const questions=(setup.data?.questionIds||[]).map(id=>interviewQuestions.find(q=>q.id===id)).filter((q):q is typeof interviewQuestions[number]=>Boolean(q)).filter(q=>!data?.coveredQuestionIds.includes(q.id));
+ const current=questions.find(q=>q.id===selected)||questions.find(q=>!data?.answers.some(a=>a.question_id===q.id&&['answered','skipped'].includes(a.status)))||questions[questions.length-1];
+ const index=questions.findIndex(q=>q.id===current?.id),finished=questions.filter(q=>data?.answers.some(a=>a.question_id===q.id&&['answered','skipped'].includes(a.status))).length;
+ async function finish(){try{await setup.save({currentStep:5,completeStep:4});router.push('/setup/5');}catch{/* Provider shows persistence error and holds the current step. */}}
+ return <section><header className="setup-heading"><p className="eyebrow">04 · Kilka dobrych pytań</p><h1>Najważniejsze często nie trafia do pierwszego CV.</h1><p>Wybraliśmy {questions.length?`${questions.length} pytań`:'pytania'} z istniejącej rozmowy, żeby odkryć Twój wkład, projekty i rezultaty. Nie musisz odpowiadać na wszystkie.</p><p className="helper">Zakończenie odpowiedzi dodaje propozycje informacji do sprawdzenia. Usługa AI może pomóc w ich rozpoznaniu. Nic nie zostaje automatycznie potwierdzone ani dopuszczone do CV.</p></header>{error&&<p role="alert" className="notice error">{error}</p>}{message&&<p role="status" className="notice">{message}</p>}{!data?<p role="status">Wczytujemy zapisaną rozmowę…</p>:current?<div className="setup-question"><nav className="setup-question-tabs" aria-label="Wybrane pytania konfiguracji">{questions.map((q,i)=><button className="button secondary small" key={q.id} aria-current={current.id===q.id?'step':undefined} onClick={()=>setSelected(q.id)}>{i+1}{data.answers.some(a=>a.question_id===q.id&&['answered','skipped'].includes(a.status))?' · zapisano':''}</button>)}</nav><p className="helper">{finished} z {questions.length} pytań zakończonych lub pominiętych</p><InterviewQuestionEditor key={current.id} question={current} initial={data.answers.find(a=>a.question_id===current.id)||emptyAnswer(current)} scope={data.userId} covered={data.coveredQuestionIds} context={data.questionContexts?.[current.id]||[]} onSaved={onSaved} onNext={()=>{if(questions[index+1])setSelected(questions[index+1].id);}} onPrevious={()=>{if(questions[index-1])setSelected(questions[index-1].id);}} hasPrevious={index>0} hasNext={index<questions.length-1}/></div>:<p className="notice">Potwierdzone informacje i wcześniejsze odpowiedzi dają już kontekst. Nie będziemy pytać o to ponownie.</p>}<div className="setup-actions"><button className="button" disabled={setup.busy||!data||extracting>0} onClick={()=>void finish()}>{extracting?'Porządkujemy zapisaną odpowiedź…':'Przejdź do podsumowania'}<ArrowRight size={17}/></button></div><p className="helper">Możesz zostawić pozostałe pytania na później. Zapisane szkice pozostają w wywiadzie.</p></section>;
+}

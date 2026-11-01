@@ -1,0 +1,30 @@
+/* MatchCV v0.4 — Career Atelier. Semantic tokens, light first. */
+:root{
+ --mcv-ink:#172637;--mcv-muted:#596677;--mcv-primary:#087F76;--mcv-primary-hover:#06695F;
+ --mcv-blue:#405D94;--mcv-violet:#655E83;--mcv-coral:#E29B83;--mcv-periwinkle:#8AA6DE;
+ --mcv-paper:#F3F0E9;--mcv-surface:#FFFFFF;--mcv-line:#DADFD9;
+ --mcv-success:#17684D;--mcv-warning:#81501E;--mcv-danger:#A63243;--mcv-focus:#375B9A;
+ --mcv-teal-soft:#E3EDE8;--mcv-blue-soft:#E7EDF9;--mcv-violet-soft:#ECEAF3;--mcv-coral-soft:#F7E8E0;
+ --mcv-input:#FEFEFC;--mcv-button-text:#FFFFFF;--mcv-warning-soft:#F7EBD9;--mcv-danger-soft:#FFF0F1;
+ --mcv-surface-hover:#EBEEE7;--mcv-primary-on-soft:#075E57;--mcv-blue-on-soft:#3B568A;--mcv-violet-on-soft:#5C527E;--mcv-context-muted:#4C5D6A;
+ --mcv-document-ink:#20304B;--mcv-document-teal:#167C80;--mcv-document-coral:#D57866;
+ --mcv-radius-card:14px;--mcv-radius-control:8px;--mcv-space-1:4px;--mcv-space-2:8px;--mcv-space-3:12px;--mcv-space-4:16px;--mcv-space-5:20px;--mcv-space-6:24px;--mcv-space-8:32px;--mcv-space-10:40px;
+ --mcv-font-ui:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--mcv-font-editorial:Georgia,Cambria,"Times New Roman",serif;
+ --mcv-motion:180ms cubic-bezier(.2,.8,.2,1);--mcv-shadow-card:0 6px 24px rgba(23,38,55,.035);
+ --mcv-disabled:#B7C0C4;
+}
+:root[data-theme=dark]{
+ --mcv-ink:#E9EDE9;--mcv-muted:#ADB9C2;--mcv-primary:#80CFC0;--mcv-primary-hover:#A2DFD3;
+ --mcv-blue:#A7BCE7;--mcv-violet:#C1B9DA;--mcv-paper:#17212A;--mcv-surface:#1E2B34;--mcv-line:#3B4B52;
+ --mcv-success:#9ADDBD;--mcv-warning:#EBC58B;--mcv-danger:#FFB0B8;--mcv-focus:#ADC2FA;
+ --mcv-teal-soft:#213D3A;--mcv-blue-soft:#28384F;--mcv-violet-soft:#353447;--mcv-coral-soft:#48372F;
+ --mcv-input:#19272F;--mcv-button-text:#142A2D;--mcv-warning-soft:#423A2B;--mcv-danger-soft:#452E37;
+ --mcv-surface-hover:#2B3B43;--mcv-primary-on-soft:#9DDCCF;--mcv-blue-on-soft:#B2C5ED;--mcv-violet-on-soft:#CBC3E2;--mcv-context-muted:#BAC4C8;
+ --mcv-disabled:#65727A;color-scheme:dark;
+}
+body{color:var(--mcv-ink);background:var(--mcv-paper);font-family:var(--mcv-font-ui)}
+:focus-visible{outline:2px solid var(--mcv-focus);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* Controls need a stronger boundary than editorial separators. */
+:root{--mcv-control-border:#75868B}
+:root[data-theme=dark]{--mcv-control-border:#81979F}

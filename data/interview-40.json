@@ -1,0 +1,1535 @@
+{
+  "schema_version": "1.0.0",
+  "product": "MatchCV",
+  "language": "pl",
+  "question_count": 40,
+  "design_principle": "Rozmowa oparta na historii i dowodach, nie test osobowości",
+  "rules": [
+    "Odpowiedzi mogą być pomijane; brak odpowiedzi nie oznacza braku kompetencji.",
+    "Dopytuj najwyżej dwa razy o jedną historię, jeśli odpowiedź jest niejasna.",
+    "Nie pytaj ponownie o fakty już potwierdzone z CV.",
+    "Nie wnioskuj o cechach chronionych ani zdrowiu; nie wymagaj danych prywatnych.",
+    "Przed eksportem wymagaj zatwierdzenia faktów i uszanuj wykluczenia użytkownika."
+  ],
+  "sections": [
+    {
+      "id": "A",
+      "title_pl": "Tożsamość i kierunek",
+      "purpose_pl": "Poznajemy człowieka stojącego za doświadczeniem, nie zbieramy danych prywatnych."
+    },
+    {
+      "id": "B",
+      "title_pl": "Historia i zakres odpowiedzialności",
+      "purpose_pl": "Ustalamy realną skalę pracy i ewolucję zawodową."
+    },
+    {
+      "id": "C",
+      "title_pl": "Projekty, decyzje i wpływ",
+      "purpose_pl": "Wyciągamy konkretne historie, które można zamienić w mocne osiągnięcia."
+    },
+    {
+      "id": "D",
+      "title_pl": "Wyniki i dowody",
+      "purpose_pl": "Pozyskujemy fakty, metryki i kontekst bez fabrykowania danych."
+    },
+    {
+      "id": "E",
+      "title_pl": "Problemy i sposób myślenia",
+      "purpose_pl": "Odkrywamy samodzielność, rozumowanie i odporność zawodową."
+    },
+    {
+      "id": "F",
+      "title_pl": "Ludzie i komunikacja",
+      "purpose_pl": "Sprawdzamy współpracę, przywództwo i zarządzanie interesariuszami."
+    },
+    {
+      "id": "G",
+      "title_pl": "Warsztat i rozwój",
+      "purpose_pl": "Rozróżniamy znajomość narzędzi od kompetencji potwierdzonych praktyką."
+    },
+    {
+      "id": "H",
+      "title_pl": "Motywacja i środowisko pracy",
+      "purpose_pl": "Poznajemy warunki, w których kandydat działa najlepiej."
+    },
+    {
+      "id": "I",
+      "title_pl": "Dopasowanie do rynku",
+      "purpose_pl": "Ustalamy kryteria ofert, ograniczenia i język pozycjonowania."
+    },
+    {
+      "id": "J",
+      "title_pl": "Narracja, wiarygodność i granice",
+      "purpose_pl": "Budujemy autentyczny wizerunek, kontrolujemy ryzyka i poufność."
+    }
+  ],
+  "questions": [
+    {
+      "id": "MCV-Q001",
+      "order": 1,
+      "section_id": "A",
+      "section_title_pl": "Tożsamość i kierunek",
+      "question_pl": "Jak opowiedział(a)byś swoją historię zawodową komuś, kto nie zna Twojej branży?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Wychwycenie tożsamości, przewodniego motywu i języka, którym mówi użytkownik.",
+      "example_prompt_pl": "Opowiedz od pierwszej istotnej decyzji zawodowej do obecnego momentu.",
+      "ai_extraction_instruction_pl": "Wyodrębnij kolejne etapy, decyzje, motyw przewodni i deklarowane specjalizacje. Nie twórz nazw stanowisk.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Co zmieniło się w Twoim podejściu do pracy między początkiem kariery a dziś?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "identity",
+        "career_narrative"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q002",
+      "order": 2,
+      "section_id": "A",
+      "section_title_pl": "Tożsamość i kierunek",
+      "question_pl": "Co sprawia, że czujesz, że wykonujesz naprawdę dobrą pracę?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Uchwycenie wewnętrznej motywacji i definicji sukcesu.",
+      "example_prompt_pl": "Może chodzi o widoczny efekt, uporządkowanie chaosu albo wpływ na innych.",
+      "ai_extraction_instruction_pl": "Wyodrębnij motywatory i preferowane rezultaty; nie przedstawiaj ich jako osiągnięć.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Podaj sytuację, w której szczególnie mocno to poczułeś(-aś).",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "motivation",
+        "values"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q003",
+      "order": 3,
+      "section_id": "A",
+      "section_title_pl": "Tożsamość i kierunek",
+      "question_pl": "Z jakich trzech umiejętności lub cech zawodowych najchętniej chcesz być znany(-a) i dlaczego?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Zebranie mocnych stron wraz z historiami potwierdzającymi.",
+      "example_prompt_pl": "Do każdej cechy dopisz konkretny przykład z pracy.",
+      "ai_extraction_instruction_pl": "Mapuj deklarację umiejętności i osobny przykład; ustaw evidence_status na claimed, dopóki nie ma dowodu.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Co konkretnie zrobiłeś(-aś), że inni mogli tę cechę zauważyć?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "skills",
+        "differentiators"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q004",
+      "order": 4,
+      "section_id": "A",
+      "section_title_pl": "Tożsamość i kierunek",
+      "question_pl": "Jakie rodzaje problemów lubisz rozwiązywać, a jakich wolał(a)byś unikać?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Zidentyfikowanie naturalnej specjalizacji i antypreferencji.",
+      "example_prompt_pl": "Opisz zadania, w których tracisz poczucie czasu, oraz takie, które Cię wyczerpują.",
+      "ai_extraction_instruction_pl": "Zapisz osobno preferencje i ograniczenia; nigdy nie publikuj ich automatycznie w CV.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy możesz podać przykład takiego zadania z ostatniego roku?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "preferences",
+        "role_fit"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q005",
+      "order": 5,
+      "section_id": "B",
+      "section_title_pl": "Historia i zakres odpowiedzialności",
+      "question_pl": "Przejdź przez najważniejsze role w swojej karierze: co miałeś(-aś) dostarczyć w każdej z nich?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Odtworzenie sensu ról bez kopiowania listy obowiązków z CV.",
+      "example_prompt_pl": "Dla każdej roli: cel, odpowiedzialność, odbiorca pracy, główny rezultat.",
+      "ai_extraction_instruction_pl": "Powiąż cele i obowiązki z konkretnym stanowiskiem oraz datami istniejącymi w profilu. Nie zgaduj brakujących.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Który obowiązek był faktycznie Twój, mimo że nie wynikał z nazwy stanowiska?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "employment",
+        "responsibilities"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q006",
+      "order": 6,
+      "section_id": "B",
+      "section_title_pl": "Historia i zakres odpowiedzialności",
+      "question_pl": "Co robiłeś(-aś) samodzielnie, a co wymagało zgody innych?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Weryfikacja autonomii i poziomu seniority.",
+      "example_prompt_pl": "Przywołaj decyzje, budżety, akceptacje lub obszary, za które odpowiadałeś(-aś).",
+      "ai_extraction_instruction_pl": "Rozróżnij accountable, responsible, consulted i informed; nie zamieniaj współpracy w zarządzanie.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Kto miał ostateczną odpowiedzialność za wynik?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "ownership",
+        "seniority"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q007",
+      "order": 7,
+      "section_id": "B",
+      "section_title_pl": "Historia i zakres odpowiedzialności",
+      "question_pl": "Kiedy i dlaczego zakres Twojej odpowiedzialności zwiększał się lub zmieniał?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Odkrycie awansów funkcjonalnych, zaufania i rosnącej skali.",
+      "example_prompt_pl": "Napisz o nowych zadaniach, klientach, projektach lub delegowanych decyzjach.",
+      "ai_extraction_instruction_pl": "Powiąż zmianę odpowiedzialności z rolą i okresem; nie dopisuj formalnego awansu, jeśli go nie było.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Po czym poznałeś(-aś), że organizacja zaczęła bardziej Ci ufać?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "growth",
+        "employment"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q008",
+      "order": 8,
+      "section_id": "B",
+      "section_title_pl": "Historia i zakres odpowiedzialności",
+      "question_pl": "Jakie mniej oczywiste doświadczenia z pracy mogłyby być cenne w zupełnie innej branży?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Ujawnienie transferowalnych umiejętności na potrzeby pivotu.",
+      "example_prompt_pl": "Np. koordynacja przetargu, proces decyzyjny, kontakty z urzędem, automatyzacja raportów.",
+      "ai_extraction_instruction_pl": "Wydobądź umiejętności transferowalne z przywołanym kontekstem; nie dopisuj znajomości nowej branży.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Do jakich innych typów stanowisk ta umiejętność mogłaby się przydać?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "transferable_skills",
+        "career_pivot"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q009",
+      "order": 9,
+      "section_id": "C",
+      "section_title_pl": "Projekty, decyzje i wpływ",
+      "question_pl": "Opowiedz szczegółowo o projekcie, który najlepiej pokazuje, na co Cię stać.",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Stworzenie flagowego case study.",
+      "example_prompt_pl": "Problem → zadanie → Twoje działania → przeszkody → efekt → czego się nauczyłeś(-aś).",
+      "ai_extraction_instruction_pl": "Utwórz projekt i relacje: problem, działania, rezultat, środki, dowody; przypisz właścicielstwo działań.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Co zrobiono by inaczej, gdyby Ciebie w tym projekcie nie było?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "projects",
+        "achievements"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q010",
+      "order": 10,
+      "section_id": "C",
+      "section_title_pl": "Projekty, decyzje i wpływ",
+      "question_pl": "Jakie były największe skale przedsięwzięć, z którymi realnie pracowałeś(-aś)?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Ustalenie miar skali z poprawnym opisem osobistego udziału.",
+      "example_prompt_pl": "Możesz podać budżet projektu, liczbę lokalizacji, wielkość zespołu czy portfel kontraktów; doprecyzuj, czym zarządzałeś(-aś).",
+      "ai_extraction_instruction_pl": "Zapisz liczby wraz z jednostką, walutą, okresem i relacją do roli; rozróżnij „budżet projektu” i „budżet zarządzany osobiście”.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy ta liczba jest potwierdzona i czy można ją publicznie ujawnić?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "scope",
+        "metrics"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q011",
+      "order": 11,
+      "section_id": "C",
+      "section_title_pl": "Projekty, decyzje i wpływ",
+      "question_pl": "Które etapy projektu prowadzisz najpewniej: inicjowanie, planowanie, wykonanie, odbiory czy utrzymanie?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Określenie rzeczywistego pokrycia cyklu życia projektów.",
+      "example_prompt_pl": "Przy każdym etapie opisz decyzje i dokumenty, które przygotowywałeś(-aś).",
+      "ai_extraction_instruction_pl": "Mapuj etapy cyklu życia do projektów i działań z dowodami, bez automatycznego uznania pełnego end-to-end.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Podaj jeden dokument albo decyzję charakterystyczną dla wybranego etapu.",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "project_lifecycle",
+        "deliverables"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q012",
+      "order": 12,
+      "section_id": "C",
+      "section_title_pl": "Projekty, decyzje i wpływ",
+      "question_pl": "Opisz projekt z wieloma interesariuszami: jak godziłeś(-aś) sprzeczne oczekiwania?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Wydobycie negocjacji, koordynacji i wpływu.",
+      "example_prompt_pl": "Kto był zaangażowany, o co toczył się spór, jakie były ograniczenia i wynik?",
+      "ai_extraction_instruction_pl": "Zapisz role interesariuszy, konflikt, działanie i efekt bez ujawniania danych poufnych.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Co zostało uzgodnione, a co pozostało otwarte?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "stakeholders",
+        "communication"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q013",
+      "order": 13,
+      "section_id": "D",
+      "section_title_pl": "Wyniki i dowody",
+      "question_pl": "Jaki konkretny efekt Twojej pracy przyniósł największą wartość organizacji?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Zamiana opowieści na wynik biznesowy.",
+      "example_prompt_pl": "Koszt, czas, ryzyko, jakość, zadowolenie klienta, wpływ społeczny.",
+      "ai_extraction_instruction_pl": "Oddziel rezultaty mierzone od szacowanych i jakościowych, z przypisaniem do roli.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Jaka była sytuacja „przed”, a jaka „po”?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "outcomes",
+        "achievements"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q014",
+      "order": 14,
+      "section_id": "D",
+      "section_title_pl": "Wyniki i dowody",
+      "question_pl": "Gdzie udało Ci się coś uprościć, przyspieszyć lub zautomatyzować?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Wykrycie procesowych i cyfrowych osiągnięć.",
+      "example_prompt_pl": "Opisz proces przed zmianą, Twoje działanie, efekt i użytkowników rozwiązania.",
+      "ai_extraction_instruction_pl": "Wydobądź wdrożenie, adopcję, oszczędność czasu, skalę; nie twórz procentów bez danych.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy rozwiązanie funkcjonowało po Twoim odejściu z projektu?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "process_improvement",
+        "automation"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q015",
+      "order": 15,
+      "section_id": "D",
+      "section_title_pl": "Wyniki i dowody",
+      "question_pl": "Jakie wyniki da się udokumentować, a które możesz opisać tylko jakościowo?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Ustalenie dowodów i poziomu pewności.",
+      "example_prompt_pl": "Wskaż raport, rekomendację, referencję, efekt projektu albo brak formalnej miary.",
+      "ai_extraction_instruction_pl": "Przypisz każdemu osiągnięciu proof_type i verification_status; brak dokumentu ≠ brak osiągnięcia.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy możesz podać choć jeden bezpieczny do publikacji punkt odniesienia?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "evidence",
+        "credibility"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q016",
+      "order": 16,
+      "section_id": "D",
+      "section_title_pl": "Wyniki i dowody",
+      "question_pl": "Który sukces był zespołowy i na czym polegał dokładnie Twój wkład?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Zapobieganie przypisywaniu sobie cudzych osiągnięć.",
+      "example_prompt_pl": "Oddziel to, co zrobił zespół, od tego, co zaprojektowałeś(-aś) lub doprowadziłeś(-aś) do końca.",
+      "ai_extraction_instruction_pl": "Stwórz dwa pola: team_outcome i individual_contribution; CV wykorzystuje wyłącznie właściwe przypisanie sprawczości.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Kto jeszcze miał kluczowy udział i jakie były Twoje decyzje?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "attribution",
+        "teamwork"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q017",
+      "order": 17,
+      "section_id": "E",
+      "section_title_pl": "Problemy i sposób myślenia",
+      "question_pl": "Opowiedz o sytuacji, w której wszystko zaczęło iść niezgodnie z planem.",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Poznanie zachowania w kryzysie i zarządzania ryzykiem.",
+      "example_prompt_pl": "Co się stało, jak rozpoznałeś(-aś) problem, jaka była Twoja reakcja i efekt?",
+      "ai_extraction_instruction_pl": "Wyodrębnij risk_signal, decision, escalation, mitigation i outcome.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Co zrobił(a)byś dziś inaczej?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "problem_solving",
+        "risk"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q018",
+      "order": 18,
+      "section_id": "E",
+      "section_title_pl": "Problemy i sposób myślenia",
+      "question_pl": "Jak podjąłeś(-aś) ważną decyzję przy niepełnych danych lub sprzecznych opiniach?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Zbadanie logiki decyzyjnej i priorytetów.",
+      "example_prompt_pl": "Opisz dostępne informacje, alternatywy, ryzyko i sposób komunikacji decyzji.",
+      "ai_extraction_instruction_pl": "Zapisz ramę decyzyjną i faktyczne uprawnienia; nie dodawaj „strategiczny” bez przykładu.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Jak sprawdziłeś(-aś), czy decyzja była trafna?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "decision_making",
+        "analysis"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q019",
+      "order": 19,
+      "section_id": "E",
+      "section_title_pl": "Problemy i sposób myślenia",
+      "question_pl": "Jaki problem wymagał od Ciebie nauczenia się nowej rzeczy w bardzo krótkim czasie?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Wykrycie adaptacji i tempa uczenia.",
+      "example_prompt_pl": "Co trzeba było opanować, w jaki sposób i z jakim rezultatem?",
+      "ai_extraction_instruction_pl": "Zapisz nową kompetencję wraz z poziomem praktycznego zastosowania, nie jako certyfikat.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy stosujesz tę umiejętność nadal?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "learning",
+        "adaptability"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q020",
+      "order": 20,
+      "section_id": "E",
+      "section_title_pl": "Problemy i sposób myślenia",
+      "question_pl": "Kiedy zakwestionowałeś(-aś) istniejące rozwiązanie i zaproponowałeś(-aś) lepsze?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Pokazanie inicjatywy i konstruktywnego wpływu.",
+      "example_prompt_pl": "Przedstaw argumenty, opór, reakcję innych i rezultat.",
+      "ai_extraction_instruction_pl": "Wyodrębnij inicjatywę, interesariuszy, uzasadnienie i efekt; unikaj przypisywania całej zmiany jednej osobie.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Jak przekonałeś(-aś) innych do pomysłu?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "initiative",
+        "innovation"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q021",
+      "order": 21,
+      "section_id": "F",
+      "section_title_pl": "Ludzie i komunikacja",
+      "question_pl": "Jak budujesz zaufanie z przełożonymi, klientami i współpracownikami?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Poznanie praktycznych zachowań relacyjnych.",
+      "example_prompt_pl": "Podaj scenariusz, w którym Twoja komunikacja zmieniła przebieg współpracy.",
+      "ai_extraction_instruction_pl": "Zapisz zachowania i przykład; nie generuj niepopartych przymiotników typu „doskonały komunikator”.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Co robisz, gdy zaufanie zostało naruszone?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "relationships",
+        "communication"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q022",
+      "order": 22,
+      "section_id": "F",
+      "section_title_pl": "Ludzie i komunikacja",
+      "question_pl": "Czy zdarzyło Ci się prowadzić ludzi, mentorować ich lub szkolić? Co dokładnie robiłeś(-aś)?",
+      "answer_type": "yes_no_with_details",
+      "required": false,
+      "input_config": {
+        "choices": [
+          {
+            "value": "yes",
+            "label_pl": "Tak"
+          },
+          {
+            "value": "no",
+            "label_pl": "Nie"
+          },
+          {
+            "value": "unsure",
+            "label_pl": "Nie wiem / trudno powiedzieć"
+          }
+        ],
+        "details_if": "yes",
+        "details_optional": true,
+        "allow_skip": true
+      },
+      "helper_text_pl": "Rozróżnienie zarządzania formalnego od funkcjonalnego i szkoleń.",
+      "example_prompt_pl": "Jeśli tak: liczba osób, rola, temat, częstotliwość i rezultat. Jeśli nie: pomiń.",
+      "ai_extraction_instruction_pl": "Zapisz leadership_type: direct_management / matrix / training / mentoring / none; nie zakładaj formalnego kierowania.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy miałeś(-aś) wpływ na ocenę pracowniczą lub jedynie na koordynację zadań?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "leadership",
+        "training"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q023",
+      "order": 23,
+      "section_id": "F",
+      "section_title_pl": "Ludzie i komunikacja",
+      "question_pl": "Jak zachowujesz się w sytuacji konfliktu lub trudnej rozmowy zawodowej?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Pokazanie dojrzałości interpersonalnej i rozwiązywania konfliktów.",
+      "example_prompt_pl": "Opowiedz o konkretnej rozmowie; pomiń nazwiska i informacje poufne.",
+      "ai_extraction_instruction_pl": "Zapisz kontekst, zachowanie, kompromis i rezultat, bez ocen psychologicznych.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Jak zmierzyłeś(-aś) skuteczność uzgodnienia?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "conflict_resolution",
+        "collaboration"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q024",
+      "order": 24,
+      "section_id": "F",
+      "section_title_pl": "Ludzie i komunikacja",
+      "question_pl": "Komu i w jaki sposób prezentowałeś(-aś) złożone informacje lub rekomendacje?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Sprawdzenie umiejętności raportowania i komunikacji do różnych odbiorców.",
+      "example_prompt_pl": "Zarząd, urzędy, klient, zespół techniczny; forma raportu, prezentacji lub warsztatu.",
+      "ai_extraction_instruction_pl": "Wyodrębnij audience_level, deliverable_type, cadence oraz zastosowany język komunikacji.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy Twoja rekomendacja wpłynęła na konkretną decyzję?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "executive_communication",
+        "stakeholders"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q025",
+      "order": 25,
+      "section_id": "G",
+      "section_title_pl": "Warsztat i rozwój",
+      "question_pl": "Jakich narzędzi, technologii i metod naprawdę używałeś(-aś) w pracy?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Odróżnienie praktyki od listy słów kluczowych.",
+      "example_prompt_pl": "Podaj narzędzie, częstotliwość, zastosowanie i projekt, w którym go użyto.",
+      "ai_extraction_instruction_pl": "Każda umiejętność musi mieć proficiency_basis i supporting_fact_id; nie podnoś poziomu bez dowodów.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Co samodzielnie potrafisz zrobić w tym narzędziu?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "technical_skills",
+        "tools"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q026",
+      "order": 26,
+      "section_id": "G",
+      "section_title_pl": "Warsztat i rozwój",
+      "question_pl": "W jakich dziedzinach możesz być samodzielnym ekspertem, a gdzie potrzebujesz wsparcia?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Kalibracja poziomów kompetencji i samoświadomości.",
+      "example_prompt_pl": "Opisz poziom bez etykiet typu „ekspert”, jeśli nie potrafisz podać przykładów.",
+      "ai_extraction_instruction_pl": "Zapisz self_assessed_level oddzielnie od verified_level; oznacz luki.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Które trzy zadania wykonywał(a)byś bez pomocy?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "skills",
+        "self_awareness"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q027",
+      "order": 27,
+      "section_id": "G",
+      "section_title_pl": "Warsztat i rozwój",
+      "question_pl": "Co w Twoim wykształceniu, kursach i certyfikatach przekłada się na realną przewagę w pracy?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Połączenie formalnego wykształcenia z użytecznością na rynku.",
+      "example_prompt_pl": "Nazwy uczelni, kierunków i uprawnień, a następnie praktyczne zastosowanie.",
+      "ai_extraction_instruction_pl": "Osobno zapisz degree, completed_training, certification i methodology_used; nie zamieniaj szkolenia w certyfikat.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy masz ważny dokument potwierdzający uprawnienie?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "education",
+        "certifications"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q028",
+      "order": 28,
+      "section_id": "G",
+      "section_title_pl": "Warsztat i rozwój",
+      "question_pl": "Jakich języków używałeś(-aś) w realnych sytuacjach zawodowych i na jakim poziomie?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Praktyczna, a nie życzeniowa ocena języków.",
+      "example_prompt_pl": "Rozmowy, negocjacje, dokumentacja, prezentacje; przybliżony poziom CEFR, jeśli znany.",
+      "ai_extraction_instruction_pl": "Zapisz język, declared_cefr (opcjonalnie) i real_use_cases; nie przypisuj CEFR automatycznie.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy prowadziłeś(-aś) prezentację lub negocjacje w tym języku?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "languages",
+        "communication"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q029",
+      "order": 29,
+      "section_id": "H",
+      "section_title_pl": "Motywacja i środowisko pracy",
+      "question_pl": "Jakie obszary wiedzy rozwijasz samodzielnie i do czego wykorzystujesz nowe informacje?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Zobaczenie ciekawości i inicjatywy rozwojowej.",
+      "example_prompt_pl": "Nowe technologie, branże, kursy własne, projekty poboczne.",
+      "ai_extraction_instruction_pl": "Odróżnij zainteresowania od ukończonych projektów i zawodowych kwalifikacji.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Pokaż jedno konkretne zastosowanie tej wiedzy.",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "growth",
+        "adjacent_skills"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q030",
+      "order": 30,
+      "section_id": "H",
+      "section_title_pl": "Motywacja i środowisko pracy",
+      "question_pl": "W jakim środowisku i stylu pracy osiągasz najlepsze rezultaty?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Dopasowanie kultury i organizacji, nie ocena charakteru.",
+      "example_prompt_pl": "Skala firmy, tempo, autonomia, struktura, praca z zespołem i klientem.",
+      "ai_extraction_instruction_pl": "Zapisz work_environment_preferences; nie umieszczaj ich w CV bez potrzeby.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Co w poprzednich środowiskach pracy najbardziej Ci pomagało?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "culture_fit",
+        "preferences"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q031",
+      "order": 31,
+      "section_id": "H",
+      "section_title_pl": "Motywacja i środowisko pracy",
+      "question_pl": "Co musi dawać Ci kolejna praca, żebyś uznał(a) ją za dobry krok?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Określenie kryteriów wyboru i priorytetów.",
+      "example_prompt_pl": "Wpływ, nauka, stabilność, pensja, lokalizacja, odpowiedzialność, misja.",
+      "ai_extraction_instruction_pl": "Stwórz ranking must_have / nice_to_have / avoid; nie ujawniaj w CV preferencji finansowych.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Które dwa warunki są dla Ciebie nienegocjowalne?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "career_goals",
+        "priorities"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q032",
+      "order": 32,
+      "section_id": "H",
+      "section_title_pl": "Motywacja i środowisko pracy",
+      "question_pl": "Jakie zadania lub branże chcesz wypróbować, chociaż nie wynikają bezpośrednio z Twojego CV?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Identyfikacja kierunków pivotu i umiejętności transferowalnych.",
+      "example_prompt_pl": "Opisz połączenie dotychczasowej wiedzy z nowym obszarem.",
+      "ai_extraction_instruction_pl": "Mapuj target_roles do istniejących dowodów; nie twórz doświadczenia w nowej branży.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Które doświadczenie jest Twoim mostem do tej roli?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "career_transition",
+        "aspirations"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q033",
+      "order": 33,
+      "section_id": "I",
+      "section_title_pl": "Dopasowanie do rynku",
+      "question_pl": "Jak wytłumaczył(a)byś rekruterowi motywację do zmiany pracy?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Budowa dojrzałej, prawdziwej narracji rekrutacyjnej.",
+      "example_prompt_pl": "Skup się na kierunku, którego szukasz, a nie na krytyce poprzednich pracodawców.",
+      "ai_extraction_instruction_pl": "Zapisz interview_only_story i public_cv_safe_story, nie dodawaj szczegółów prywatnych.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Które elementy tej odpowiedzi chcesz zachować tylko na rozmowę?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "job_search",
+        "narrative"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q034",
+      "order": 34,
+      "section_id": "I",
+      "section_title_pl": "Dopasowanie do rynku",
+      "question_pl": "Jakie formy zatrudnienia, tryby pracy, lokalizacje i podróże są dla Ciebie realnie możliwe?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Filtrowanie ofert według warunków użytkownika.",
+      "example_prompt_pl": "UoP/B2B, stacjonarnie/hybrydowo/zdalnie, relokacja, wyjazdy; podaj ograniczenia.",
+      "ai_extraction_instruction_pl": "Zapisz employment_modes, remote_modes, regions i travel_cap; stosuj do dopasowania ofert, nie do CV.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Które ustalenia są elastyczne, a które nie?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "job_filters",
+        "availability"
+      ],
+      "storage_visibility": "private_only",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q035",
+      "order": 35,
+      "section_id": "I",
+      "section_title_pl": "Dopasowanie do rynku",
+      "question_pl": "Jakiego wynagrodzenia oczekujesz i jak elastyczne są te oczekiwania?",
+      "answer_type": "range_with_context",
+      "required": false,
+      "input_config": {
+        "fields": [
+          {
+            "key": "min",
+            "type": "number",
+            "required": false
+          },
+          {
+            "key": "max",
+            "type": "number",
+            "required": false
+          },
+          {
+            "key": "currency",
+            "type": "select",
+            "options": [
+              "PLN",
+              "EUR",
+              "USD",
+              "GBP",
+              "other"
+            ],
+            "required": false
+          },
+          {
+            "key": "period",
+            "type": "select",
+            "options": [
+              "month",
+              "year",
+              "hour"
+            ],
+            "required": false
+          },
+          {
+            "key": "contract_basis",
+            "type": "select",
+            "options": [
+              "UoP_brutto",
+              "B2B_netto_plus_VAT",
+              "other"
+            ],
+            "required": false
+          },
+          {
+            "key": "negotiability",
+            "type": "text",
+            "required": false
+          }
+        ],
+        "allow_skip": true,
+        "default_private": true
+      },
+      "helper_text_pl": "Filtrowanie ofert, bez ujawniania informacji rekruterom bez zgody.",
+      "example_prompt_pl": "Podaj przedział, walutę, okres oraz UoP brutto lub B2B netto + VAT; możesz pominąć.",
+      "ai_extraction_instruction_pl": "Zapisz salary_min, salary_max, currency, frequency, contract_basis i consent_to_share=false; nie mieszaj jednostek.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy podany zakres jest minimum, celem czy przedziałem negocjacyjnym?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "salary",
+        "job_filters"
+      ],
+      "storage_visibility": "private_only",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q036",
+      "order": 36,
+      "section_id": "I",
+      "section_title_pl": "Dopasowanie do rynku",
+      "question_pl": "Jakie firmy, stanowiska lub oferty intuicyjnie do Ciebie pasują — i dlaczego?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Nauka gustu użytkownika i kryteriów rekomendacji.",
+      "example_prompt_pl": "Wskaż 2–3 przykłady, pożądany charakter projektów i rodzaj odpowiedzialności.",
+      "ai_extraction_instruction_pl": "Zapisz target_role_examples oraz jawnie opisane powody; nie zakładaj, że są kwalifikacje.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Co odróżnia ofertę idealną od tylko akceptowalnej?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "market_matching",
+        "target_roles"
+      ],
+      "storage_visibility": "private_only",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q037",
+      "order": 37,
+      "section_id": "J",
+      "section_title_pl": "Narracja, wiarygodność i granice",
+      "question_pl": "Gdybyś miał(a) wybrać pięć faktów, które rekruter musi o Tobie zapamiętać, co by to było?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Priorytety do sekcji podsumowania CV i rozmowy.",
+      "example_prompt_pl": "Fakty, nie przymiotniki: skala, specjalizacja, wynik, decyzja, unikalny projekt.",
+      "ai_extraction_instruction_pl": "Każdy fakt musi mieć evidence_ref, typ i status; bez dowodu oznacz jako deklarację.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Który z tych faktów można poprzeć dokumentem lub case study?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "positioning",
+        "evidence"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q038",
+      "order": 38,
+      "section_id": "J",
+      "section_title_pl": "Narracja, wiarygodność i granice",
+      "question_pl": "Czy w Twojej historii są zmiany kierunku, przerwy lub nakładające się role wymagające wyjaśnienia?",
+      "answer_type": "yes_no_with_details",
+      "required": false,
+      "input_config": {
+        "choices": [
+          {
+            "value": "yes",
+            "label_pl": "Tak"
+          },
+          {
+            "value": "no",
+            "label_pl": "Nie"
+          },
+          {
+            "value": "unsure",
+            "label_pl": "Nie wiem / trudno powiedzieć"
+          }
+        ],
+        "details_if": "yes",
+        "details_optional": true,
+        "allow_skip": true
+      },
+      "helper_text_pl": "Opracowanie spójnej chronologii bez stygmatyzacji.",
+      "example_prompt_pl": "Jeżeli tak, opisz tylko tyle, ile chcesz; powody prywatne nie są wymagane.",
+      "ai_extraction_instruction_pl": "Zapisz timeline_context jako optional, private_by_default; nie interpretuj braku odpowiedzi.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Jak krótko i zgodnie z prawdą przedstawić tę zmianę podczas rekrutacji?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "timeline",
+        "career_transitions"
+      ],
+      "storage_visibility": "private_only",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q039",
+      "order": 39,
+      "section_id": "J",
+      "section_title_pl": "Narracja, wiarygodność i granice",
+      "question_pl": "O czym absolutnie nie wolno pisać w Twoim CV ani przekazywać modelowi do generacji?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Kontrola poufności, wrażliwości i preferencji publikacji.",
+      "example_prompt_pl": "Poufne projekty, nazwiska klientów, dokładne budżety, dane osobiste, niejawne referencje.",
+      "ai_extraction_instruction_pl": "Zapisz explicit_exclusions i masking_rules; egzekwuj reguły przed generacją i eksportem.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Czy istnieje bezpieczny opis zastępczy, który nadal pokazuje skalę pracy?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "privacy",
+        "confidentiality"
+      ],
+      "storage_visibility": "private_only",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    },
+    {
+      "id": "MCV-Q040",
+      "order": 40,
+      "section_id": "J",
+      "section_title_pl": "Narracja, wiarygodność i granice",
+      "question_pl": "Jakie pytanie powinien zadać Ci świetny rekruter, żeby odkryć Twoją wartość — i jak byś odpowiedział(a)?",
+      "answer_type": "long_text",
+      "required": false,
+      "input_config": {
+        "multiline": true,
+        "min_length": 0,
+        "recommended_min_words": 40,
+        "max_length": 5000,
+        "allow_skip": true,
+        "allow_voice_transcript": true
+      },
+      "helper_text_pl": "Odkrycie unikalnych historii nieuwzględnionych w poprzednich pytaniach.",
+      "example_prompt_pl": "Opowiedz historię, którą zwykle pomijasz, a która wiele mówi o Twojej pracy.",
+      "ai_extraction_instruction_pl": "Dodaj nowe fakty i potencjalne pytania uzupełniające, unikaj duplikatów i weryfikuj spójność.",
+      "conditional_followups": [
+        {
+          "condition": "answer_contains_relevant_detail_or_gap",
+          "question_pl": "Jak ten przykład można przetłumaczyć na konkretny punkt CV?",
+          "max_occurrences": 1
+        }
+      ],
+      "career_tags": [
+        "hidden_strengths",
+        "career_narrative"
+      ],
+      "storage_visibility": "profile_internal",
+      "share_in_cv_by_default": false,
+      "user_can_edit": true,
+      "user_can_skip": true
+    }
+  ]
+}
