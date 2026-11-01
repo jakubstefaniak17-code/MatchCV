@@ -10,21 +10,46 @@ export const documentTemplates={
 } as const;
 const BODY='1D2638',MUTED='617084',RULE='E3E8ED';
 export const documentPage={width:595.28,height:841.89,left:51,right:51,top:48.2,bottom:41.1};
-interface DocumentBlock {kind:'name'|'role'|'contact'|'heading'|'body'|'bullet'|'case';text:string;size:number;bold:boolean;color:string;before:number;after:number;prefix?:string;rule?:boolean;keepWithNext?:boolean}
+interface DocumentBlock {kind:'name'|'role'|'contact'|'heading'|'employment'|'period'|'body'|'bullet'|'case';text:string;size:number;bold:boolean;color:string;before:number;after:number;prefix?:string;rule?:boolean;keepWithNext?:boolean}
 export interface ResumeDocument {template:TemplateId;title:string;blocks:DocumentBlock[]}
+/** Display month precision in a CV without changing the evidence-backed ISO source value. */
+export function employmentDateLabel(value:string|null|undefined,language:'pl'|'en'):string{
+  if(!value)return '';
+  if(!/^\d{4}-\d{2}(?:-\d{2})?$/.test(value))return value;
+  const [year,month]=value.split('-');
+  if(Number(month)<1||Number(month)>12)return value;
+  if(language==='pl')return `${month}.${year}`;
+  return `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(month)-1]} ${year}`;
+}
+
 /** PDF and DOCX consume this one ordered structure. No factual text is invented in presentation. */
 export function buildResumeDocument(resume:Resume):ResumeDocument{
   const style=documentTemplates[resume.template];const blocks:DocumentBlock[]=[];
   if(resume.person?.name)blocks.push({kind:'name',text:resume.person.name.toLocaleUpperCase(resume.language),size:style.nameSize,bold:true,color:style.accent,before:0,after:4,keepWithNext:true});
   blocks.push({kind:'role',text:resume.headline,size:10,bold:true,color:MUTED,before:0,after:6,keepWithNext:Boolean(resume.person?.contact.length)});
   if(resume.person?.contact.length)blocks.push({kind:'contact',text:resume.person.contact.join('  •  '),size:9,bold:false,color:MUTED,before:0,after:7,rule:true});
-  function heading(text:string){blocks.push({kind:'heading',text:style.uppercase?text.toLocaleUpperCase(resume.language):text,size:style.headingSize,bold:true,color:style.accent,before:10,after:5,rule:style.sectionRule,keepWithNext:true});}
-  if(resume.summary.trim()){heading(summaryLabel(resume.language,resume.template));for(const text of resume.summary.split('\n').filter(Boolean))blocks.push({kind:'body',text,size:9,bold:false,color:BODY,before:0,after:3});}
-  for(const section of resume.sections.filter(s=>!s.hidden&&s.claims.length)){
+  function heading(text:string){blocks.push({kind:'heading',text:style.uppercase?text.toLocaleUpperCase(resume.language):text,size:style.headingSize,bold:true,color:style.accent,before:8,after:4,rule:style.sectionRule,keepWithNext:true});}
+  if(resume.summary.trim()){heading(summaryLabel(resume.language,resume.template));for(const text of resume.summary.split('\n').filter(Boolean))blocks.push({kind:'body',text,size:9,bold:false,color:BODY,before:0,after:2});}
+  const visibleExperience=resume.sections.find(section=>section.id==='experience'&&!section.hidden);
+  const employment=resume.employment||[];
+  const showEmployment=employment.length>0&&Boolean(visibleExperience);
+  function employmentHistory(){
+    for(const entry of employment){
+      const title=[entry.position,entry.employer].filter(Boolean).join(' · ');
+      blocks.push({kind:'employment',text:title,size:10.5,bold:true,color:BODY,before:6,after:3,keepWithNext:true});
+      const period=[employmentDateLabel(entry.startDate,resume.language),entry.isCurrent?(resume.language==='pl'?'obecnie':'present'):employmentDateLabel(entry.endDate,resume.language)].filter(Boolean).join(' – ');
+      const context=[period,entry.location].filter(Boolean).join('  ·  ');
+      if(context)blocks.push({kind:'period',text:context,size:9,bold:false,color:MUTED,before:0,after:4,keepWithNext:entry.claims.length>0});
+      entry.claims.forEach((claim,index)=>blocks.push({kind:'bullet',text:claim.text,size:9,bold:false,color:BODY,before:0,after:2,prefix:'•',keepWithNext:index<entry.claims.length-1}));
+    }
+  }
+  for(const section of resume.sections.filter(s=>!s.hidden&&(s.claims.length||(s.id==='experience'&&showEmployment)))){
     heading(section.title);
-    section.claims.forEach((claim,index)=>{
+    if(section.id==='experience'&&showEmployment)employmentHistory();
+    const entryStatements=new Set(section.id==='experience'&&showEmployment?employment.flatMap(entry=>entry.claims.map(claim=>claim.text)):[]);
+    section.claims.filter(claim=>!entryStatements.has(claim.text)).forEach((claim,index)=>{
       const kind=resume.template==='modern_studio'&&['project','achievement'].includes(section.id)?'case':['education','certification','language','skill'].includes(section.id)?'body':'bullet';
-      blocks.push({kind,text:claim.text,size:9,bold:false,color:BODY,before:0,after:kind==='case'?5:3,...(kind==='case'?{prefix:String(index+1).padStart(2,'0')}:kind==='bullet'?{prefix:'•'}:{})});
+      blocks.push({kind,text:claim.text,size:9,bold:false,color:BODY,before:0,after:kind==='case'?4:2,...(kind==='case'?{prefix:String(index+1).padStart(2,'0')}:kind==='bullet'?{prefix:'•'}:{})});
     });
   }
   return {template:resume.template,title:resume.title,blocks};
@@ -35,7 +60,7 @@ export function buildDocx(resume:Resume):Document{
     const runs:TextRun[]=[];
     if(block.prefix)runs.push(new TextRun({text:block.prefix+'  ',bold:block.kind==='case',color:block.kind==='case'?style.caseAccent:BODY,size:block.size*2,font:'DejaVu Sans'}));
     runs.push(new TextRun({text:block.text,bold:block.bold,color:block.color,size:block.size*2,font:'DejaVu Sans'}));
-    return new Paragraph({children:runs,...(block.kind==='heading'?{heading:HeadingLevel.HEADING_1}:{}),keepNext:block.keepWithNext,keepLines:block.kind==='heading'||block.kind==='name'||block.kind==='role',widowControl:true,wordWrap:true,spacing:{before:Math.round(block.before*20),after:Math.round(block.after*20),line:Math.round(block.size*1.3*20),lineRule:LineRuleType.EXACT},...(block.rule?{border:{bottom:{color:RULE,size:4,style:BorderStyle.SINGLE,space:2}}}:{}),...(block.prefix?{indent:{left:block.kind==='case'?400:200,hanging:block.kind==='case'?400:200}}:{})});
+    return new Paragraph({children:runs,...(block.kind==='heading'?{heading:HeadingLevel.HEADING_1}:{}),keepNext:block.keepWithNext,keepLines:block.kind==='heading'||block.kind==='name'||block.kind==='role'||block.kind==='employment'||block.kind==='period',widowControl:true,wordWrap:true,spacing:{before:Math.round(block.before*20),after:Math.round(block.after*20),line:Math.round(block.size*1.25*20),lineRule:LineRuleType.EXACT},...(block.rule?{border:{bottom:{color:RULE,size:4,style:BorderStyle.SINGLE,space:2}}}:{}),...(block.prefix?{indent:{left:block.kind==='case'?400:200,hanging:block.kind==='case'?400:200}}:{})});
   });
   return new Document({creator:'MatchCV',title:model.title,description:`${style.name} — selectable, single-column A4 career document`,styles:{default:{document:{run:{font:'DejaVu Sans',size:18,color:BODY}}},paragraphStyles:[{id:'Heading1',name:'Heading 1',basedOn:'Normal',next:'Normal',quickFormat:true,run:{font:'DejaVu Sans',size:style.headingSize*2,bold:true,color:style.accent},paragraph:{keepNext:true,keepLines:true}}]},sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:964,bottom:822,left:1020,right:1020},borders:{pageBorders:{offsetFrom:PageBorderOffsetFrom.PAGE},pageBorderTop:{style:BorderStyle.SINGLE,size:18,color:style.accent,space:0}}}},children}]});
 }
@@ -64,13 +89,16 @@ export async function buildPdf(resume:Resume,fontData:Uint8Array,boldFontData?:U
   function decoration(){page.drawLine({start:{x:left,y:height-1},end:{x:width-right,y:height-1},color:pdfColor(style.accent),thickness:2});}
   decoration();
   function newPage(){page=doc.addPage([width,height]);cursor=height-top;decoration();}
-  const metrics=model.blocks.map(block=>{const font=block.bold?bold:regular;const indent=block.kind==='case'?20:block.kind==='bullet'?10:0;const lines=wrapText(block.text,font,block.size,contentWidth-indent);return {block,font,indent,lines,lineHeight:block.size*1.3};});
+  const metrics=model.blocks.map(block=>{const font=block.bold?bold:regular;const indent=block.kind==='case'?20:block.kind==='bullet'?10:0;const lines=wrapText(block.text,font,block.size,contentWidth-indent);return {block,font,indent,lines,lineHeight:block.size*1.25};});
   for(let index=0;index<metrics.length;index++){
     const {block,font,indent,lines,lineHeight}=metrics[index];
-    const next=metrics[index+1];
-    // Keep headings with at least two following text lines. Header chains stay together too.
+    // Keep a section / position / period chain with its first two body lines.
+    // Looking through the chain avoids an orphan employer heading at the page foot.
     let required=block.before+lines.length*lineHeight+block.after;
-    if(block.keepWithNext&&next)required+=next.block.before+Math.min(2,next.lines.length)*next.lineHeight;
+    for(let chained=index;metrics[chained]?.block.keepWithNext&&metrics[chained+1];chained++){
+      const next=metrics[chained+1];
+      required+=next.block.before+(next.block.keepWithNext?next.lines.length:Math.min(2,next.lines.length))*next.lineHeight+next.block.after;
+    }
     const fullPage=height-top-bottom;
     if(cursor-bottom<required&&required<=fullPage)newPage();
     cursor-=block.before;
@@ -78,8 +106,8 @@ export async function buildPdf(resume:Resume,fontData:Uint8Array,boldFontData?:U
       const remaining=lines.length-n;
       // Avoid single-line widows when a paragraph necessarily spans pages.
       if(cursor-bottom<lineHeight||(remaining>1&&cursor-bottom<lineHeight*2)){newPage();}
-      page.drawText(lines[n],{x:left+indent,y:cursor-block.size,size:block.size,font,color:pdfColor(block.color)});
       if(n===0&&block.prefix)page.drawText(block.prefix,{x:left,y:cursor-block.size,size:block.size,font:block.kind==='case'?bold:regular,color:pdfColor(block.kind==='case'?style.caseAccent:BODY)});
+      page.drawText(lines[n],{x:left+indent,y:cursor-block.size,size:block.size,font,color:pdfColor(block.color)});
       cursor-=lineHeight;
     }
     if(block.rule){cursor-=2;page.drawLine({start:{x:left,y:cursor},end:{x:width-right,y:cursor},color:pdfColor(RULE),thickness:.45});}

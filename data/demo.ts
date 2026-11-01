@@ -20,3 +20,12 @@ export const syntheticJobs=[
 {title:'Digital Transformation Manager',text:'Digital Transformation Manager\nFictional employer: Quartz Operations\nRequirements\nDigital automation and analytics\nTransformation workshops and adoption training\nChange adoption methods\nResponsibilities\nImprove reporting preparation and operational processes\nPreferred\nInternational team collaboration'},
 {title:'Energy Infrastructure Manager',text:'Energy Infrastructure Manager\nFictional employer: Harbor Grid\nRequirements\nEnergy storage and grid infrastructure feasibility\nGrid connection risk assessments\nEnergy procurement\nResponsibilities\nCoordinate battery programme feasibility studies\nPreferred\nContractor coordination'},
 ];
+
+/** Synthetic reviewed relational snapshots for chronology; unrelated to the owner's career. */
+export const syntheticExperiences=[
+ {id:'74000000-0000-4000-8000-000000000001',employer:'Northbridge Works',position:'Senior Project Coordinator',start_date:'2024-01-01',end_date:null,responsibility_scope:'Coordinated infrastructure procurement and contractor schedules. Prepared governance and stakeholder reporting.',industry:'Infrastructure'},
+ {id:'74000000-0000-4000-8000-000000000002',employer:'Aster Process Labs',position:'Transformation Project Manager',start_date:'2022-01-01',end_date:'2023-12-31',responsibility_scope:'Implemented digital automation and analytics. Delivered transformation workshops and adoption training.',industry:'Digital operations'},
+ {id:'74000000-0000-4000-8000-000000000003',employer:'Cedar Energy Studio',position:'Energy Project Analyst',start_date:'2020-01-01',end_date:'2021-12-31',responsibility_scope:'Prepared energy procurement and grid connection risk assessments. Coordinated energy storage feasibility studies.',industry:'Energy'},
+ {id:'74000000-0000-4000-8000-000000000004',employer:'Westhaven Engineering',position:'Project Assistant',start_date:'2018-01-01',end_date:'2019-12-31',responsibility_scope:'Prepared project documentation and maintained contractor schedules.',industry:'Engineering'},
+];
+for(const experience of syntheticExperiences)syntheticFacts.push({id:experience.id.replace('74000000','75000000'),statement:`${experience.position} — ${experience.employer} — ${experience.start_date} — ${experience.end_date||'present'} — ${experience.responsibility_scope}`,fact_type:'experience',verification_status:'user_confirmed',source_reference:`work_experiences:${experience.id}`,structured_value:{...experience}} as Fact);

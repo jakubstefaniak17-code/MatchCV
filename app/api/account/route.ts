@@ -7,6 +7,7 @@ import {z} from 'zod';
 export async function GET(){try{
  const {user,db}=await apiUser();const data=Object.fromEntries(await Promise.all(ownedTables.map(async table=>[table,await rows(db,table,user.id)])));
  async function files(prefix:string):Promise<string[]>{const all:string[]=[];for(let offset=0;;offset+=100){const {data:items,error}=await db.storage.from('career-documents').list(prefix,{limit:100,offset});check(error);for(const item of items||[]){if(item.id)all.push(prefix+'/'+item.name);else all.push(...await files(prefix+'/'+item.name));}if(!items||items.length<100)break;}return all;}
+ const {data:onboarding,error:onboardingError}=await db.from('onboarding_progress').select('*').eq('user_id',user.id);check(onboardingError);data.onboarding_progress=onboarding||[];
  const documents=await Promise.all((await files(user.id)).map(async path=>{const {data,error}=await db.storage.from('career-documents').createSignedUrl(path,300);check(error);return {path,url:data!.signedUrl,expiresInSeconds:300};}));
  return NextResponse.json({exportedAt:new Date().toISOString(),account:{id:user.id,email:user.email},data,documents},{headers:{'Content-Disposition':'attachment; filename="matchcv-personal-data.json"','Cache-Control':'private, no-store'}});
  }catch(error){return fail(error);}}

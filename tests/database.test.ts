@@ -106,7 +106,7 @@ describe('production PostgreSQL migrations and tenant policies (embedded)', () =
     const profiles = await db.query<{count:number}>(`select count(*)::int as count from profiles`);
     expect(profiles.rows[0].count).toBe(2);
     const r = await db.query<{relname:string;relrowsecurity:boolean;relforcerowsecurity:boolean}>(`select relname,relrowsecurity,relforcerowsecurity from pg_class c join pg_namespace n on c.relnamespace=n.oid where n.nspname='public' and c.relkind='r'`);
-    expect(r.rows).toHaveLength(23);
+    expect(r.rows).toHaveLength(24);
     expect(r.rows.every(t=>t.relrowsecurity)).toBe(true);
     expect(r.rows.filter(t=>t.relname!=='rate_limit_windows').every(t=>t.relforcerowsecurity)).toBe(true);
   });

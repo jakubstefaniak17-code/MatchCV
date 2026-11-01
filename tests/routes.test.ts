@@ -79,11 +79,11 @@ describe('workspace server route integration with unavailable AI and an owner-sc
   expect(state.queries.filter(q=>q.table==='career_facts').every(q=>q.filters.some(([key,value])=>key==='user_id'&&value===state.userId))).toBe(true);
  });
  it('generates an evidence-grounded fallback CV, excluding another owner and unconfirmed facts',async()=>{
-  state.tables.career_facts=[{...confirmed},{...confirmed,id:crypto.randomUUID(),user_id:bob,statement:'Other account secret'}, {...confirmed,id:crypto.randomUUID(),verification_status:'imported_unconfirmed',statement:'Unconfirmed skill'}];
+  state.tables.career_facts=[{...confirmed},{...confirmed,id:crypto.randomUUID(),fact_type:'identity',statement:'Alex Morgan'},{...confirmed,id:crypto.randomUUID(),user_id:bob,statement:'Other account secret'}, {...confirmed,id:crypto.randomUUID(),verification_status:'imported_unconfirmed',statement:'Unconfirmed skill'}];
   state.tables.job_offers=[{id:jobId,user_id:state.userId,analysis:analyzeJob(ad,'en')}];
-  const response=await POST(request({action:'generate',jobId,language:'en',template:'modern_studio'}));
+  const response=await POST(request({action:'generate',jobId,language:'en',template:'modern_studio',mode:'basic'}));
   expect(response.status).toBe(200);
-  expect((await response.json()).warning).toMatch(/fact-preserving/);
+  expect((await response.json()).warning).toMatch(/Prosty szkic/);
   const cv=state.tables.cv_versions[0];
   expect(cv).toMatchObject({user_id:state.userId,approved:false,template:'modern_studio'});
   const serialized=JSON.stringify(cv.content);
@@ -92,6 +92,12 @@ describe('workspace server route integration with unavailable AI and an owner-sc
   expect(serialized).not.toContain('Unconfirmed skill');
   expect(state.rpcCalls[0].args.operation).toBe('generate');
   expect(state.queries.find(q=>q.table==='job_offers')?.filters).toEqual(expect.arrayContaining([['id',jobId],['user_id',state.userId]]));
+ });
+ it('does not create a CV when professional AI editing fails, and keeps source data',async()=>{
+  state.tables.career_facts=[{...confirmed},{...confirmed,id:crypto.randomUUID(),fact_type:'identity',statement:'Alex Morgan'}];
+  state.tables.job_offers=[{id:jobId,user_id:state.userId,analysis:analyzeJob(ad,'en')}];
+  const response=await POST(request({action:'generate',jobId,language:'en',template:'modern_studio'}));
+  expect(response.status).toBe(503);expect(state.tables.cv_versions).toBeUndefined();expect(state.tables.career_facts).toHaveLength(2);
  });
  it('returns 404 for another owner’s job and never creates a CV',async()=>{
   state.tables.job_offers=[{id:jobId,user_id:bob,analysis:analyzeJob(ad,'en')}];

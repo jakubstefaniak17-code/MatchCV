@@ -13,7 +13,7 @@ export async function POST(request:Request){try{
  // Preserve provenance and invalidate old statements when the structured source is edited.
  if(input.id){const {error:invalidateError}=await db.from('career_facts').update({verification_status:'disputed'}).eq('user_id',user.id).eq('source_reference',`${input.entity}:${input.id}`);check(invalidateError);}
  // Edits create a new candidate; previous canonical facts are never silently overwritten.
- const {error:factError}=await db.from('career_facts').insert({user_id:user.id,fact_type:factTypeForEntity[input.entity],statement:entityStatement(input.entity,data),source_type:'manual',source_reference:`${input.entity}:${saved.id}`,structured_value:data,verification_status:'user_provided',confidential:input.entity==='projects'&&'confidential' in data?Boolean(data.confidential):false});check(factError);
+ const {error:factError}=await db.from('career_facts').insert({user_id:user.id,fact_type:factTypeForEntity[input.entity],statement:entityStatement(input.entity,data),source_type:'manual',source_reference:`${input.entity}:${saved.id}`,structured_value:data,verification_status:'user_provided',excluded:true,confidential:input.entity==='projects'&&'confidential' in data?Boolean(data.confidential):false});check(factError);
  return NextResponse.json({ok:true,id:saved.id});
  }catch(e){return fail(e);}}
 export async function DELETE(request:Request){try{sameOrigin(request);const {user,db}=await apiUser();const {entity,id}=z.object({entity:entityName,id:z.string().uuid()}).parse(await body(request));await ownedRow(db,entity,id,user.id);const {error}=await db.from(entity).delete().eq('id',id).eq('user_id',user.id);check(error);

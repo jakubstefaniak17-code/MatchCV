@@ -5,18 +5,23 @@ import {apiUser,HttpError} from '@/lib/auth/server';
 import {body,fail,check,sameOrigin} from '@/lib/auth/http';
 import {ownedRow,rows,rateLimit} from '@/lib/db/repository';
 import {importCoverage,parsedFacts,applyExclusions} from '@/lib/career/provenance';
-import {factSchema,generateResume,mapEvidence,resumeSchema,jobAnalysisSchema,validateResume,usableFacts,templateSchema,normalizeLegacyResume} from '@/lib/resume/engine';
+import {factSchema,generateResume,mapEvidence,resumeSchema,jobAnalysisSchema,usableFacts,templateSchema,normalizeLegacyResume} from '@/lib/resume/engine';
 import {analyzeJobAI,composeResumeAI} from '@/lib/ai/workflows';
 import {analyzeJob} from '@/lib/jobs/analyze';
+import {entityName,entitySchemas} from '@/lib/career/schemas';
+import {assessCareerReadiness} from '@/lib/onboarding/readiness';
+import {reviewResume} from '@/lib/resume/review';
+import {buildCareerContext} from '@/lib/resume/context';
+import {materializeReviewedImport} from '@/lib/career/import-review';
 import {syntheticFacts,syntheticJobs} from '@/data/demo';
 const uuid=z.string().uuid();
 const actionSchema=z.discriminatedUnion('action',[
  z.object({action:z.literal('profile'),data:z.object({headline:z.string().max(300).optional(),summary:z.string().max(5000).optional(),career_objectives:z.string().max(5000).optional(),seniority:z.string().max(100).optional(),excluded_details:z.array(z.string().max(250)).max(50).optional()})}),
  z.object({action:z.literal('answer'),questionId:z.string(),answer:z.string().max(12000),status:z.enum(['answered','skipped'])}),
- z.object({action:z.literal('fact'),id:uuid.optional(),statement:z.string().min(1).max(4000),factType:z.enum(['experience','project','achievement','skill','education','certification','language','other','identity','contact']).default('experience'),status:factSchema.shape.verification_status.optional(),excluded:z.boolean().optional(),confidential:z.boolean().optional(),private:z.boolean().optional(),forbiddenForCv:z.boolean().optional(),coverageConfirmed:z.boolean().optional()}),
+ z.object({action:z.literal('fact'),id:uuid.optional(),statement:z.string().min(1).max(4000),factType:z.enum(['experience','project','achievement','skill','education','certification','language','other','identity','contact']).default('experience'),status:factSchema.shape.verification_status.optional(),excluded:z.boolean().optional(),confidential:z.boolean().optional(),private:z.boolean().optional(),forbiddenForCv:z.boolean().optional(),coverageConfirmed:z.boolean().optional(),proposedEntity:z.object({entity:entityName,data:z.record(z.string(),z.unknown()),period:z.object({start:z.string().nullable(),end:z.string().nullable(),isCurrent:z.boolean().optional()}).optional()}).optional()}),
  z.object({action:z.literal('deleteFact'),id:uuid}),
  z.object({action:z.literal('analyzeJob'),text:z.string().max(60000).default(''),url:z.string().max(2000).optional(),language:z.enum(['pl','en']).default('pl')}),
- z.object({action:z.literal('generate'),jobId:uuid,language:z.enum(['pl','en']),template:templateSchema}),
+ z.object({action:z.literal('generate'),jobId:uuid,language:z.enum(['pl','en']),template:templateSchema,mode:z.enum(['professional','basic']).default('professional')}),
  z.object({action:z.literal('saveCv'),id:uuid,content:resumeSchema,approved:z.boolean().default(false)}),
  z.object({action:z.literal('followup'),questionId:z.string(),language:z.enum(['pl','en']).default('pl')}),
  z.object({action:z.literal('extractAnswer'),questionId:z.string()}),
@@ -39,7 +44,7 @@ export async function POST(request:Request){try{
  if(input.action==='fact'){
  const data={statement:input.statement,fact_type:input.factType,verification_status:input.status||'user_provided',excluded:input.excluded||false,confidential:input.confidential||false,private:input.private||false,forbidden_for_cv:input.forbiddenForCv||false,confirmed_at:input.status==='user_confirmed'?new Date().toISOString():null};
  if(input.status==='document_supported')throw new HttpError(400,'Use user confirmation; documentary verification requires an independent review process.');
- if(input.id){const original=await ownedRow(db,'career_facts',input.id,user.id);const structured={...(original.structured_value||{}),coverage_confirmed:input.coverageConfirmed===true&&original.statement===input.statement};const {error}=await db.from('career_facts').update({...data,structured_value:structured}).eq('id',input.id).eq('user_id',user.id);check(error);}else{const {error}=await db.from('career_facts').insert({...data,user_id:user.id,source_type:'manual',source_reference:'User profile editor'});check(error);}
+ if(input.id){const original=await ownedRow(db,'career_facts',input.id,user.id);if(input.proposedEntity){const entityData=entitySchemas[input.proposedEntity.entity].parse(input.proposedEntity.data);original.structured_value={...original.structured_value,proposed_entity:{...(original.structured_value?.proposed_entity||{}),...input.proposedEntity,entity:input.proposedEntity.entity,data:entityData}};original.statement=input.statement;}const reviewed=input.status==='user_confirmed'?await materializeReviewedImport(db,user.id,original,input.statement):{structured:original.structured_value||{},sourceReference:original.source_reference};const structured={...reviewed.structured,coverage_confirmed:input.coverageConfirmed===true&&original.statement===input.statement};const {error}=await db.from('career_facts').update({...data,source_reference:reviewed.sourceReference,structured_value:structured}).eq('id',input.id).eq('user_id',user.id);check(error);}else{const {error}=await db.from('career_facts').insert({...data,user_id:user.id,source_type:'manual',source_reference:'User profile editor'});check(error);}
  }
  if(input.action==='deleteFact'){const {error}=await db.from('career_facts').delete().eq('id',input.id).eq('user_id',user.id);check(error);}
  if(input.action==='analyzeJob'){
@@ -58,14 +63,17 @@ export async function POST(request:Request){try{
  if(input.action==='generate'){
  await rateLimit(db,'generate');const job=await ownedRow(db,'job_offers',input.jobId,user.id);const facts=(await rows(db,'career_facts',user.id)).map(f=>factSchema.parse(f));if(!usableFacts(facts).length)throw new HttpError(400,'Confirm at least one public career fact first.');
  const profiles=await rows(db,'career_profiles',user.id);const protectedFacts=applyExclusions(facts,profiles[0]?.excluded_details);
- const args={facts:usableFacts(protectedFacts),analysis:jobAnalysisSchema.parse(job.analysis),language:input.language,template:input.template};let resume;let warning:string|null=null;
- try{resume=await composeResumeAI(args,usage);}catch{resume=generateResume(args);warning='AI unavailable or output rejected. A fact-preserving draft was generated. Original fact wording is retained.';}
+ const readiness=assessCareerReadiness(protectedFacts);if(!readiness.canGenerate)throw new HttpError(400,readiness.gaps.join(' '));
+ const entityRows=Object.fromEntries(await Promise.all(entityName.options.map(async table=>[table,await rows(db,table,user.id)])));
+ const context=buildCareerContext({...entityRows,facts:protectedFacts,career_profiles:profiles});
+ const args={facts:usableFacts(protectedFacts),context,analysis:jobAnalysisSchema.parse(job.analysis),language:input.language,template:input.template};let resume;let warning:string|null=null;
+ if(input.mode==='basic'){resume=generateResume(args);warning='Prosty szkic oparty na faktach. Bez redakcji AI i tłumaczenia; sprawdź język oraz kompletność przed publikacją.';}else{try{resume=await composeResumeAI(args,usage);}catch{throw new HttpError(503,'Redakcja AI jest obecnie niedostępna lub wynik nie przeszedł kontroli. Dane zachowano. Spróbuj ponownie albo jawnie wybierz prosty szkic.');}}
  const {data:cv,error}=await db.from('cv_versions').insert({user_id:user.id,job_offer_id:job.id,title:resume.title,language:input.language,template:input.template,content:resume,approved:false}).select().single();check(error);
  return NextResponse.json({ok:true,id:cv.id,warning});
  }
  if(input.action==='saveCv'){
- await ownedRow(db,'cv_versions',input.id,user.id);const facts=(await rows(db,'career_facts',user.id)).map(f=>factSchema.parse(f));const profileRows=await rows(db,'career_profiles',user.id);const result=validateResume(input.content,applyExclusions(facts,profileRows[0]?.excluded_details));if(!result.valid)throw new HttpError(400,result.errors.join(' '));
- const {error}=await db.from('cv_versions').update({content:input.content,approved:input.approved,title:input.content.title,language:input.content.language,template:input.content.template}).eq('id',input.id).eq('user_id',user.id);check(error);
+ const stored=await ownedRow(db,'cv_versions',input.id,user.id);const facts=(await rows(db,'career_facts',user.id)).map(f=>factSchema.parse(f));const profileRows=await rows(db,'career_profiles',user.id);const reviewed=reviewResume(input.content,normalizeLegacyResume(stored.content),applyExclusions(facts,profileRows[0]?.excluded_details),input.approved);const result=reviewed.result;if(!result.valid)throw new HttpError(400,result.errors.join(' '));
+ const {error}=await db.from('cv_versions').update({content:reviewed.content,approved:input.approved,title:reviewed.content.title,language:reviewed.content.language,template:reviewed.content.template}).eq('id',input.id).eq('user_id',user.id);check(error);
  }
  if(input.action==='extractAnswer'||input.action==='followup')throw new HttpError(400,'Użyj nowego wywiadu 40 pytań.');
  if(input.action==='demo'){
